@@ -1,6 +1,8 @@
 package testers;
 
-import org.junit.After;
+import bgu.spl.mics.MessageBusImpl;
+import bgu.spl.mics.MicroService;
+import bgu.spl.mics.example.services.ExampleBroadcastListenerService;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -8,12 +10,14 @@ import static org.junit.Assert.*;
 
 public class MessageBusImplTest {
 
-    @Before
-    public void setUp() throws Exception {
-    }
+    MessageBusImpl messageBus;
+    MicroService microService;
 
-    @After
-    public void tearDown() throws Exception {
+    @Before
+    public void setUp() throws Exception
+    {
+        messageBus = new MessageBusImpl();
+        microService = new ExampleBroadcastListenerService("exampleMicroService1", new String[]{"3"});
     }
 
     @Test
