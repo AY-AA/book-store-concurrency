@@ -10,7 +10,6 @@ public class MessageBusImpl implements MessageBus {
 	@Override
 	public <T> void subscribeEvent(Class<? extends Event<T>> type, MicroService m) {
 		// TODO Auto-generated method stub
-
 	}
 
 	@Override

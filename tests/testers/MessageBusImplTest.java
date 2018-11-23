@@ -22,6 +22,7 @@ public class MessageBusImplTest {
 
     @Test
     public void subscribeEvent() {
+
     }
 
     @Test
