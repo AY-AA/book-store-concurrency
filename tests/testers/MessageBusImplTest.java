@@ -16,7 +16,7 @@ public class MessageBusImplTest {
     @Before
     public void setUp() throws Exception
     {
-        messageBus = new MessageBusImpl();
+        messageBus = MessageBusImpl.getInstance();
         microService = new ExampleBroadcastListenerService("exampleMicroService1", new String[]{"3"});
     }
 
