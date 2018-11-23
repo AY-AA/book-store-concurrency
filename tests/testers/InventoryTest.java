@@ -20,6 +20,9 @@ public class InventoryTest {
     private OrderResult res;
     private int isAvailable;
 
+    /**
+     * Before each test we initialize the variables and getting books to work with.
+     */
     @Before
     public void testSetUp() {
         testInventory = Inventory.getInstance();
@@ -28,11 +31,18 @@ public class InventoryTest {
         isAvailable = -2;
     }
 
+    /**
+     * Test which checks if the singleton implementation is correct.
+     */
     @Test
     public void testGetInstance() {
         Assert.assertNotNull(testInventory); //Checks if the singleton design pattern has been implemented correctly.
     }
 
+    /**
+     * Test which checks the loading process by trying to load the books
+     * and see if the books are stored in the inventory by trying to take it.
+     */
     //------- load -------
     @Test
     public void testLoad() {
@@ -43,6 +53,9 @@ public class InventoryTest {
         }
     }
 
+    /**
+     * Test which checks if after taking an existing book, the amount of available copies of that book, has decreased by 1.
+     */
     //------- take -------
     @Test
     public void testTake_decreasingAmount() {
@@ -52,12 +65,18 @@ public class InventoryTest {
         Assert.assertEquals(-1, isAvailable);
     }
 
+    /**
+     * Test which checks if trying to take an existing book ends with the result of successfully taken.
+     */
     @Test
     public void testTake_successfullyTaken() {
         res = testInventory.take(bookInventoryInfos[1].getBookTitle());
         Assert.assertEquals(res, OrderResult.SUCCESSFULLY_TAKEN);
     }
 
+    /**
+     * Test which checks if trying to take a non existing book ends with the result of non existing in stock.
+     */
     @Test
     public void testTake_nonExisting() {
         //If tried to take non existing book
@@ -65,6 +84,9 @@ public class InventoryTest {
         Assert.assertEquals(OrderResult.NOT_IN_STOCK,res);
     }
 
+    /**
+     *Test which checks if reaching for an existing book info ends with a correct corresponding result of the book's price.
+     */
     //------- checkAvailabilityAndGetPrice -------
     @Test
     public void testCheckAvailabilityAndGetPrice_ExistingBook() {
@@ -73,6 +95,9 @@ public class InventoryTest {
         Assert.assertEquals(isAvailable,bookInventoryInfos[2].getPrice());
     }
 
+    /**
+     * Test which checks if reaching for a non existing book info ends with a correct corresponding result of -1
+     */
     @Test
     public void testCheckAvailabilityAndGetPrice_NonExistingBook() {
         //checking if a non existing book is available
@@ -80,6 +105,9 @@ public class InventoryTest {
         Assert.assertEquals(-1, isAvailable);
     }
 
+    /**
+     * Test which checks if the operation of writing the inventory to a file.
+     */
     //------- printInventoryToFile -------
     @Test
     public void printInventoryToFile() {
@@ -115,6 +143,10 @@ public class InventoryTest {
         //Todo: get the books by getter from inventory and compare to books (deserialized object)
     }
 
+    /**
+     * A private method generating array of books for the different tests.
+     * @return array of BookInventoryInfo objects
+     */
     private BookInventoryInfo[] giveMeBooks(){
         BookInventoryInfo[] bookInventoryInfos= new BookInventoryInfo[3];
         bookInventoryInfos[0] = new BookInventoryInfo("HarryPotterAndTheChamberOfSecrets",2,80);
