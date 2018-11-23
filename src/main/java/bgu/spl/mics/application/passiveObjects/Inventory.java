@@ -1,6 +1,9 @@
 package bgu.spl.mics.application.passiveObjects;
 
 
+import org.omg.PortableInterceptor.SUCCESSFUL;
+
+import java.util.HashMap;
 
 /**
  * Passive data-object representing the store inventory.
@@ -14,12 +17,21 @@ package bgu.spl.mics.application.passiveObjects;
  */
 public class Inventory {
 
+	private static Inventory singleInventory;
+	private HashMap<String, Integer> bookInventoryInfo;
+
+	private Inventory(){
+	    bookInventoryInfo = new HashMap<String, Integer>();
+    }
+
 	/**
      * Retrieves the single instance of this class.
      */
 	public static Inventory getInstance() {
-		//TODO: Implement this
-		return null;
+		if(singleInventory == null){
+		    singleInventory = new Inventory();
+        }
+		return singleInventory;
 	}
 	
 	/**
@@ -30,7 +42,11 @@ public class Inventory {
      * 						of the inventory.
      */
 	public void load (BookInventoryInfo[ ] inventory ) {
-		
+	    if(bookInventoryInfo == null) {
+            for (BookInventoryInfo book : inventory) {
+                bookInventoryInfo.put(book.getBookTitle(), book.getAmountInInventory());
+            }
+        }
 	}
 	
 	/**
@@ -42,12 +58,9 @@ public class Inventory {
      * 			second should reduce by one the number of books of the desired type.
      */
 	public OrderResult take (String book) {
-		
-		return null;
+		return OrderResult.SUCCESSFULLY_TAKEN;
 	}
-	
-	
-	
+
 	/**
      * Checks if a certain book is available in the inventory.
      * <p>
