@@ -142,21 +142,9 @@ public class InventoryTest {
         }
 
         //after deserialization, we get the books hashmap from the inventory instance
-        Field f = null;
-        try {
-            f = testInventory.getClass().getDeclaredField("bookInventoryInfo");
-        } catch (NoSuchFieldException e) {
-            e.printStackTrace();
-        }
-        f.setAccessible(true);
-        HashMap<String,Integer> inventorysBooks = null;
-        try {
-            inventorysBooks = (HashMap) f.get(testInventory); //IllegalAccessException
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        }
+
         // checks if they hold the same books
-        assertTrue(inventorysBooks.equals(books));
+        assertTrue(bookInventoryInfos.equals(books));
 
     }
 
