@@ -1,55 +1,72 @@
 package testers;
 
-import bgu.spl.mics.MessageBusImpl;
-import bgu.spl.mics.MicroService;
+import bgu.spl.mics.*;
+import bgu.spl.mics.example.messages.ExampleEvent;
 import bgu.spl.mics.example.services.ExampleBroadcastListenerService;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.xml.transform.Result;
+
+import static javafx.scene.input.KeyCode.T;
 import static org.junit.Assert.*;
 
 public class MessageBusImplTest {
 
     MessageBusImpl messageBus;
-    MicroService microService;
+    MicroService microService1;
+    MicroService microService2;
 
     @Before
     public void setUp() throws Exception
     {
         messageBus = MessageBusImpl.getInstance();
-        microService = new ExampleBroadcastListenerService("exampleMicroService1", new String[]{"3"});
+        microService1 = new ExampleBroadcastListenerService("exampleMicroService1", new String[]{"3"});
+        microService2 = new ExampleBroadcastListenerService("exampleMicroService2", new String[]{"1"});
     }
 
     @Test
-    public void subscribeEvent() {
+    public void subscribeEvent() throws ClassNotFoundException {
+        String msName = microService1.getName();
+        ExampleEvent event = new ExampleEvent(msName);
+        Class<? extends Event<String>> x = event.getClass();
+        messageBus.subscribeEvent(x,microService2);
+    }
+
+    @Test
+    public void subscribeBroadcast()
+    {
+    }
+
+    @Test
+    public void complete()
+    {
 
     }
 
     @Test
-    public void subscribeBroadcast() {
+    public void sendBroadcast()
+    {
     }
 
     @Test
-    public void complete() {
+    public void sendEvent()
+    {
     }
 
     @Test
-    public void sendBroadcast() {
+    public void register()
+    {
     }
 
     @Test
-    public void sendEvent() {
+    public void unregister()
+    {
     }
 
     @Test
-    public void register() {
-    }
-
-    @Test
-    public void unregister() {
-    }
-
-    @Test
-    public void awaitMessage() {
+    public void awaitMessage()
+    {
     }
 }

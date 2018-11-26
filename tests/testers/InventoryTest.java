@@ -24,7 +24,8 @@ public class InventoryTest {
      * Before each test we initialize the variables and getting books to work with.
      */
     @Before
-    public void testSetUp() {
+    public void testSetUp()
+    {
         testInventory = Inventory.getInstance();
         bookInventoryInfos = giveMeBooks();
         testInventory.load(bookInventoryInfos);
@@ -35,7 +36,8 @@ public class InventoryTest {
      * Test which checks if the singleton implementation is correct.
      */
     @Test
-    public void testGetInstance() {
+    public void testGetInstance()
+    {
         Assert.assertNotNull(testInventory); //Checks if the singleton design pattern has been implemented correctly.
     }
 
@@ -45,7 +47,8 @@ public class InventoryTest {
      */
     //------- load -------
     @Test
-    public void testLoad() {
+    public void testLoad()
+    {
         //checking if the items were loaded to inventory
         for (int i = 0; i < bookInventoryInfos.length; i++) {
             res = testInventory.take(bookInventoryInfos[i].getBookTitle());
@@ -58,7 +61,8 @@ public class InventoryTest {
      */
     //------- take -------
     @Test
-    public void testTake_decreasingAmount() {
+    public void testTake_decreasingAmount()
+    {
         //If amount of taken book decreasing (from one to zero) after action.
         res = testInventory.take(bookInventoryInfos[2].getBookTitle());
         isAvailable = testInventory.checkAvailabiltyAndGetPrice(bookInventoryInfos[2].getBookTitle());
@@ -69,7 +73,8 @@ public class InventoryTest {
      * Test which checks if trying to take an existing book ends with the result of successfully taken.
      */
     @Test
-    public void testTake_successfullyTaken() {
+    public void testTake_successfullyTaken()
+    {
         res = testInventory.take(bookInventoryInfos[1].getBookTitle());
         Assert.assertEquals(res, OrderResult.SUCCESSFULLY_TAKEN);
     }
@@ -78,7 +83,8 @@ public class InventoryTest {
      * Test which checks if trying to take a non existing book ends with the result of non existing in stock.
      */
     @Test
-    public void testTake_nonExisting() {
+    public void testTake_nonExisting()
+    {
         //If tried to take non existing book
         res = testInventory.take("nonExistingBook");
         Assert.assertEquals(OrderResult.NOT_IN_STOCK,res);
@@ -89,7 +95,8 @@ public class InventoryTest {
      */
     //------- checkAvailabilityAndGetPrice -------
     @Test
-    public void testCheckAvailabilityAndGetPrice_ExistingBook() {
+    public void testCheckAvailabilityAndGetPrice_ExistingBook()
+    {
         //checking if an existing book is available and received the same price
         isAvailable = testInventory.checkAvailabiltyAndGetPrice(bookInventoryInfos[2].getBookTitle());
         Assert.assertEquals(isAvailable,bookInventoryInfos[2].getPrice());
@@ -99,7 +106,8 @@ public class InventoryTest {
      * Test which checks if reaching for a non existing book info ends with a correct corresponding result of -1
      */
     @Test
-    public void testCheckAvailabilityAndGetPrice_NonExistingBook() {
+    public void testCheckAvailabilityAndGetPrice_NonExistingBook()
+    {
         //checking if a non existing book is available
         isAvailable = testInventory.checkAvailabiltyAndGetPrice("nonExistingBook");
         Assert.assertEquals(-1, isAvailable);
@@ -110,7 +118,8 @@ public class InventoryTest {
      */
     //------- printInventoryToFile -------
     @Test
-    public void printInventoryToFile() {
+    public void printInventoryToFile()
+    {
         String file = "books.txt";
         testInventory.printInventoryToFile(file);
         HashMap<String,Integer> books = null;
@@ -147,7 +156,8 @@ public class InventoryTest {
      * A private method generating array of books for the different tests.
      * @return array of BookInventoryInfo objects
      */
-    private BookInventoryInfo[] giveMeBooks(){
+    private BookInventoryInfo[] giveMeBooks()
+    {
         BookInventoryInfo[] bookInventoryInfos= new BookInventoryInfo[3];
         bookInventoryInfos[0] = new BookInventoryInfo("HarryPotterAndTheChamberOfSecrets",2,80);
         bookInventoryInfos[1] = new BookInventoryInfo("50ShadesOfGray",3,99);
