@@ -3,7 +3,6 @@ package testers;
 import bgu.spl.mics.application.passiveObjects.BookInventoryInfo;
 import bgu.spl.mics.application.passiveObjects.Inventory;
 import bgu.spl.mics.application.passiveObjects.OrderResult;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -11,7 +10,10 @@ import org.junit.Test;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.lang.reflect.Field;
 import java.util.HashMap;
+
+import static junit.framework.TestCase.assertTrue;
 
 public class InventoryTest {
 
@@ -111,7 +113,7 @@ public class InventoryTest {
     //------- printInventoryToFile -------
     @Test
     public void printInventoryToFile() {
-        String file = "books.txt";
+        String file = "src/books.txt";
         testInventory.printInventoryToFile(file);
         HashMap<String,Integer> books = null;
 
@@ -129,9 +131,9 @@ public class InventoryTest {
             fileInputStream.close();
         }
 
-        catch(IOException ex)
+        catch(IOException ex) //when the file is empty, or not found, an exception will be thrown
         {
-            System.out.println("IOException is caught");
+            books = new HashMap<String,Integer>();
         }
 
         catch(ClassNotFoundException ex)
@@ -139,8 +141,23 @@ public class InventoryTest {
             System.out.println("ClassNotFoundException is caught");
         }
 
-        //after deserialization
-        //Todo: get the books by getter from inventory and compare to books (deserialized object)
+        //after deserialization, we get the books hashmap from the inventory instance
+        Field f = null;
+        try {
+            f = testInventory.getClass().getDeclaredField("bookInventoryInfo");
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+        }
+        f.setAccessible(true);
+        HashMap<String,Integer> inventorysBooks = null;
+        try {
+            inventorysBooks = (HashMap) f.get(testInventory); //IllegalAccessException
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        // checks if they hold the same books
+        assertTrue(inventorysBooks.equals(books));
+
     }
 
     /**
