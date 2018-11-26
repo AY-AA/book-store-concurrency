@@ -25,7 +25,7 @@ public class BookInventoryInfo {
      */
 	public String getBookTitle() {
 		// TODO Implement this
-		return null;
+		return bookTitle;
 	}
 
 	/**
@@ -35,7 +35,7 @@ public class BookInventoryInfo {
      */
 	public int getAmountInInventory() {
 		// TODO Implement this
-		return 0;
+		return amountInInventory;
 	}
 
 	/**

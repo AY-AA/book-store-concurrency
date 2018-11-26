@@ -21,6 +21,7 @@ public class InventoryTest {
     private BookInventoryInfo[] bookInventoryInfos;
     private OrderResult res;
     private int isAvailable;
+    private HashMap<String,Integer> testInventoryMap;
 
     /**
      * Before each test we initialize the variables and getting books to work with.
@@ -28,6 +29,7 @@ public class InventoryTest {
     @Before
     public void testSetUp() {
         testInventory = Inventory.getInstance();
+        testInventoryMap = new HashMap<>();
         bookInventoryInfos = giveMeBooks();
         testInventory.load(bookInventoryInfos);
         isAvailable = -2;
@@ -125,7 +127,7 @@ public class InventoryTest {
             ObjectInputStream in = new ObjectInputStream(fileInputStream);
 
             // Method for deserialization of object
-            books = (HashMap<String,Integer>)in.readObject();
+            books = (HashMap<String, Integer>)in.readObject();
 
             in.close();
             fileInputStream.close();
@@ -138,14 +140,14 @@ public class InventoryTest {
 
         catch(ClassNotFoundException ex)
         {
+            books = new HashMap<String,Integer>();
             System.out.println("ClassNotFoundException is caught");
         }
 
         //after deserialization, we get the books hashmap from the inventory instance
 
         // checks if they hold the same books
-        assertTrue(bookInventoryInfos.equals(books));
-
+        Assert.assertTrue(testInventoryMap.equals(books));
     }
 
     /**
@@ -157,6 +159,9 @@ public class InventoryTest {
         bookInventoryInfos[0] = new BookInventoryInfo("HarryPotterAndTheChamberOfSecrets",2,80);
         bookInventoryInfos[1] = new BookInventoryInfo("50ShadesOfGray",3,99);
         bookInventoryInfos[2] = new BookInventoryInfo("midSummerNightDreams",1,105);
+        for (int i = 0; i < bookInventoryInfos.length; i++) {
+            testInventoryMap.put(bookInventoryInfos[i].getBookTitle(),bookInventoryInfos[i].getAmountInInventory());
+        }
         return bookInventoryInfos;
     }
 }

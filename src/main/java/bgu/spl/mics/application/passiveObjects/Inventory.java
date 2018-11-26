@@ -3,6 +3,9 @@ package bgu.spl.mics.application.passiveObjects;
 
 import org.omg.PortableInterceptor.SUCCESSFUL;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.HashMap;
 
 /**
@@ -42,9 +45,9 @@ public class Inventory {
      * 						of the inventory.
      */
 	public void load (BookInventoryInfo[ ] inventory ) {
-	    if(bookInventoryInfo == null) {
-            for (BookInventoryInfo book : inventory) {
-                bookInventoryInfo.put(book.getBookTitle(), book.getAmountInInventory());
+	    if(bookInventoryInfo.size() == 0) {
+            for (int i = 0; i < inventory.length; i++) {
+                bookInventoryInfo.put(inventory[i].getBookTitle(), inventory[i].getAmountInInventory());
             }
         }
 	}
@@ -81,6 +84,42 @@ public class Inventory {
      * This method is called by the main method in order to generate the output.
      */
 	public void printInventoryToFile(String filename){
-		//TODO: Implement this
+
+		FileOutputStream fout = null;
+		ObjectOutputStream oos = null;
+
+		try {
+
+			fout = new FileOutputStream(filename);
+			oos = new ObjectOutputStream(fout);
+			oos.writeObject(bookInventoryInfo);
+
+			//Done writing file.
+
+		} catch (Exception ex) {
+
+			ex.printStackTrace();
+
+		} finally {
+
+			if (fout != null) {
+				try {
+					fout.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+
+			if (oos != null) {
+				try {
+					oos.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+
+		}
 	}
+
 }
+

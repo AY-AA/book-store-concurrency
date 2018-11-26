@@ -297,7 +297,7 @@ public class MessageBusImplTest {
         assertTrue(awaitMessageCrashed);
     }
 
-    private Event registerAndSubscribeEvent ( MicroService m)
+    private Event registerAndSubscribeEvent (MicroService m)
     {
         _messageBus.register(_microServiceEvent);
         // micro service subscription
@@ -309,7 +309,7 @@ public class MessageBusImplTest {
         return event;
     }
 
-    private Broadcast registerAndSubscribeBroadcast ( MicroService m)
+    private Broadcast registerAndSubscribeBroadcast (MicroService m)
     {
         _messageBus.register(_microServiceEvent);
         // micro service subscription
