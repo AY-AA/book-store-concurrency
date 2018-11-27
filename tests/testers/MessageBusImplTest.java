@@ -219,7 +219,7 @@ public class MessageBusImplTest {
     {
         Event event = registerAndSubscribeEvent(_microServiceEvent);
 
-        // an event is sent so the awaitMessage method won't waiting for an event to appear
+        // an event is sent so the awaitMessage method won't be waiting for an event to appear
         _messageBus.sendEvent(event);
 
         boolean registered = true;

@@ -51,10 +51,9 @@ public class InventoryTest {
     @Test
     public void testLoad() {
         //checking if the items were loaded to inventory
-        for (int i = 0; i < bookInventoryInfos.length; i++) {
-            res = testInventory.take(bookInventoryInfos[i].getBookTitle());
-            Assert.assertEquals(res,OrderResult.SUCCESSFULLY_TAKEN);
-        }
+        res = testInventory.take(bookInventoryInfos[0].getBookTitle());
+        Assert.assertEquals(res,OrderResult.SUCCESSFULLY_TAKEN);
+
     }
 
     /**

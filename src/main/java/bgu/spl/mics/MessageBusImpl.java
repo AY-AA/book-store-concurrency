@@ -1,5 +1,8 @@
 package bgu.spl.mics;
 
+import java.util.HashMap;
+import java.util.Vector;
+
 /**
  * The {@link MessageBusImpl class is the implementation of the MessageBus interface.
  * Write your implementation here!
@@ -8,6 +11,15 @@ package bgu.spl.mics;
 public class MessageBusImpl implements MessageBus {
 
 	private static MessageBusImpl messageBus;
+
+    // this hash map represents each micro service and its queue
+	// whenever a micro service's message vector is null, it means it has been unregistered
+    private HashMap<MicroService, Vector<Message>> _messagesQueues;
+
+
+    // TODO : think of other object which can hold more than one value for each key
+//    // this hash map represents each subscription type and the micro services subscribed to it
+//    private HashMap<Message,MicroService> _messagesSubscriptions;
 
 	public static MessageBusImpl getInstance()
     {
@@ -18,6 +30,7 @@ public class MessageBusImpl implements MessageBus {
 
     private MessageBusImpl()
     {
+        _messagesQueues = new HashMap<>();
 	};
 
 	@Override
@@ -52,14 +65,14 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public void register(MicroService m) {
-		// TODO Auto-generated method stub
-
+	    Vector<Message> messages = new Vector<>();
+        _messagesQueues.put(m,messages);
 	}
 
 	@Override
 	public void unregister(MicroService m) {
-		// TODO Auto-generated method stub
-
+	    if (_messagesQueues.containsKey(m))
+            _messagesQueues.put(m,null);
 	}
 
 	@Override

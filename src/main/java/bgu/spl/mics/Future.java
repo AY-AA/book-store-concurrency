@@ -12,11 +12,12 @@ import java.util.concurrent.TimeUnit;
  */
 public class Future<T> {
 
+	T _result;
 	/**
 	 * This should be the the only public constructor in this class.
 	 */
 	public Future() {
-		//TODO: implement this
+        _result= null;
 	}
 	
 	/**
@@ -28,23 +29,23 @@ public class Future<T> {
      * 	       
      */
 	public T get() {
-		//TODO: implement this.
-		return null;
+		return _result;
 	}
 	
 	/**
      * Resolves the result of this Future object.
      */
 	public void resolve (T result) {
-		//TODO: implement this.
+		_result = result;
 	}
 	
 	/**
      * @return true if this object has been resolved, false otherwise
      */
 	public boolean isDone() {
-		//TODO: implement this.
-		return false;
+		if (_result == null)
+		    return false;
+		return true;
 	}
 	
 	/**
@@ -59,7 +60,15 @@ public class Future<T> {
      *         elapsed, return null.
      */
 	public T get(long timeout, TimeUnit unit) {
-		//TODO: implement this.
+	    if (_result != null)
+	        return _result;
+        long timeToSleep  = TimeUnit.MILLISECONDS.convert(timeout, unit);
+        // TODO : think of a way of getting the thread back even before the given time
+        try {
+            Thread.sleep(timeToSleep);
+        } catch (InterruptedException e) { // thread might be interrupted
+            e.printStackTrace();
+        }
 		return null;
 	}
 
