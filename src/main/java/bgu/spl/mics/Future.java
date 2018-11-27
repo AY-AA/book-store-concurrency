@@ -63,7 +63,7 @@ public class Future<T> {
 	    if (_result != null)
 	        return _result;
         long timeToSleep  = TimeUnit.MILLISECONDS.convert(timeout, unit);
-        // TODO : think of a way of getting the thread back even before the given time
+        // TODO : think of a way of getting the thread back before the given time
         try {
             Thread.sleep(timeToSleep);
         } catch (InterruptedException e) { // thread might be interrupted

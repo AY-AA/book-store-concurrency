@@ -1,11 +1,8 @@
 package bgu.spl.mics.application.passiveObjects;
 
 
-import org.omg.PortableInterceptor.SUCCESSFUL;
+import Accessories.FilePrinter;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.util.HashMap;
 
 /**
@@ -20,21 +17,21 @@ import java.util.HashMap;
  */
 public class Inventory {
 
-	private static Inventory singleInventory;
-	private HashMap<String, Integer> bookInventoryInfo;
+	private static Inventory _singleInventory;
+	private HashMap<String, Integer> _bookInventoryInfo;
 
 	private Inventory(){
-	    bookInventoryInfo = new HashMap<String, Integer>();
+	    _bookInventoryInfo = new HashMap<String, Integer>();
     }
 
 	/**
      * Retrieves the single instance of this class.
      */
 	public static Inventory getInstance() {
-		if(singleInventory == null){
-		    singleInventory = new Inventory();
+		if(_singleInventory == null){
+		    _singleInventory = new Inventory();
         }
-		return singleInventory;
+		return _singleInventory;
 	}
 	
 	/**
@@ -45,9 +42,9 @@ public class Inventory {
      * 						of the inventory.
      */
 	public void load (BookInventoryInfo[ ] inventory ) {
-	    if(bookInventoryInfo.size() == 0) {
+	    if(_bookInventoryInfo.size() == 0) {
             for (int i = 0; i < inventory.length; i++) {
-                bookInventoryInfo.put(inventory[i].getBookTitle(), inventory[i].getAmountInInventory());
+                _bookInventoryInfo.put(inventory[i].get_bookTitle(), inventory[i].get_amountInInventory());
             }
         }
 	}
@@ -72,8 +69,8 @@ public class Inventory {
      */
 	public int checkAvailabiltyAndGetPrice(String book) {
 		int price = -1;
-		if (bookInventoryInfo.containsKey(book))
-            price = bookInventoryInfo.get(book);
+		if (_bookInventoryInfo.containsKey(book))
+            price = _bookInventoryInfo.get(book);
 		return price;
 	}
 	
@@ -86,41 +83,7 @@ public class Inventory {
      * This method is called by the main method in order to generate the output.
      */
 	public void printInventoryToFile(String filename){
-
-		FileOutputStream fout = null;
-		ObjectOutputStream oos = null;
-
-		try {
-
-			fout = new FileOutputStream(filename);
-			oos = new ObjectOutputStream(fout);
-			oos.writeObject(bookInventoryInfo);
-
-			//Done writing file.
-
-		} catch (Exception ex) {
-
-			ex.printStackTrace();
-
-		} finally {
-
-			if (fout != null) {
-				try {
-					fout.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-
-			if (oos != null) {
-				try {
-					oos.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-
-		}
+        FilePrinter.printToFile(_bookInventoryInfo,filename);
 	}
 
 }

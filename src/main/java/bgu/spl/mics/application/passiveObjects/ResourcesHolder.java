@@ -12,15 +12,20 @@ import bgu.spl.mics.Future;
  * You can add ONLY private methods and fields to this class.
  */
 public class ResourcesHolder {
-	
+
+	private static ResourcesHolder _resourceHolder;
+
 	/**
      * Retrieves the single instance of this class.
      */
 	public static ResourcesHolder getInstance() {
-		//TODO: Implement this
-		return null;
+		if (_resourceHolder == null)
+		    _resourceHolder = new ResourcesHolder();
+		return _resourceHolder;
 	}
-	
+
+	private ResourcesHolder(){}
+
 	/**
      * Tries to acquire a vehicle and gives a future object which will
      * resolve to a vehicle.

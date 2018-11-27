@@ -118,7 +118,8 @@ public abstract class MicroService implements Runnable {
      *               {@code e}.
      */
     protected final <T> void complete(Event<T> e, T result) {
-        //TODO: implement this.
+//        MessageBusImpl msgBus = MessageBusImpl.getInstance();
+//        msgBus.complete(e,result);
     }
 
     /**
@@ -148,10 +149,13 @@ public abstract class MicroService implements Runnable {
      */
     @Override
     public final void run() {
+        MessageBusImpl msgBus = MessageBusImpl.getInstance();
+        msgBus.register(this);
         initialize();
         while (!terminated) {
             System.out.println("NOT IMPLEMENTED!!!"); //TODO: you should delete this line :)
         }
+        msgBus.unregister(this);
     }
 
 }

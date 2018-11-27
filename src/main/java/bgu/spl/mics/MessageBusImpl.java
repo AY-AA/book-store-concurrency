@@ -1,5 +1,6 @@
 package bgu.spl.mics;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Vector;
 
@@ -16,10 +17,9 @@ public class MessageBusImpl implements MessageBus {
 	// whenever a micro service's message vector is null, it means it has been unregistered
     private HashMap<MicroService, Vector<Message>> _messagesQueues;
 
-
-    // TODO : think of other object which can hold more than one value for each key
-//    // this hash map represents each subscription type and the micro services subscribed to it
-//    private HashMap<Message,MicroService> _messagesSubscriptions;
+    // this hash map represents messages as keys
+    // and the value of each message is the array list which holds all micro services subscribed to a certain message
+    private HashMap<Message,Vector<MicroService> >_messagesSubscriptions;
 
 	public static MessageBusImpl getInstance()
     {
@@ -31,54 +31,80 @@ public class MessageBusImpl implements MessageBus {
     private MessageBusImpl()
     {
         _messagesQueues = new HashMap<>();
-	};
+        _messagesSubscriptions = new HashMap<>();
+	}
 
 	@Override
-	public <T> void subscribeEvent(Class<? extends Event<T>> type, MicroService m) {
+	public <T> void subscribeEvent(Class<? extends Event<T>> type, MicroService m)
+    {
 		// TODO Auto-generated method stub
 	}
 
 	@Override
-	public void subscribeBroadcast(Class<? extends Broadcast> type, MicroService m) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public <T> void complete(Event<T> e, T result) {
+	public void subscribeBroadcast(Class<? extends Broadcast> type, MicroService m)
+    {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public void sendBroadcast(Broadcast b) {
+	public <T> void complete(Event<T> e, T result)
+    {
 		// TODO Auto-generated method stub
 
 	}
+
+	@Override
+	public void sendBroadcast(Broadcast b)
+    {
+        // at first we need to find all micro services subscribed to b
+        Vector<MicroService> microServices = _messagesSubscriptions.get(b);
+
+        // for each micro service subscribed to b we insert the message b into its list
+        for (MicroService m : microServices)
+        {
+            Vector<Message> currMsgVec = _messagesQueues.get(m);
+            if (currMsgVec != null)
+                currMsgVec.add(b);
+        }
+    }
 
 	
 	@Override
-	public <T> Future<T> sendEvent(Event<T> e) {
+	public <T> Future<T> sendEvent(Event<T> e)
+    {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public void register(MicroService m) {
+	public void register(MicroService m)
+    {
 	    Vector<Message> messages = new Vector<>();
         _messagesQueues.put(m,messages);
 	}
 
 	@Override
-	public void unregister(MicroService m) {
+	public void unregister(MicroService m)
+    {
 	    if (_messagesQueues.containsKey(m))
             _messagesQueues.put(m,null);
 	}
 
 	@Override
-	public Message awaitMessage(MicroService m) throws InterruptedException {
-		// TODO Auto-generated method stub
-		return null;
+	public Message awaitMessage(MicroService m) throws InterruptedException
+    {
+        Message msg = null;
+        if (_messagesQueues.containsKey(m))
+        {
+            Vector<Message> mQueue = _messagesQueues.get(m);
+            if (mQueue != null && !mQueue.isEmpty())
+            {
+                msg = mQueue.firstElement();
+                mQueue.remove(msg);
+            }
+        }
+		return msg;
 	}
 
 	

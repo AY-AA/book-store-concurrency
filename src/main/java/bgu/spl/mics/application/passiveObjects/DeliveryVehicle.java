@@ -1,5 +1,7 @@
 package bgu.spl.mics.application.passiveObjects;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * Passive data-object representing a delivery vehicle of the store.
  * You must not alter any of the given public methods of this class.
@@ -7,18 +9,23 @@ package bgu.spl.mics.application.passiveObjects;
  * You may add ONLY private fields and methods to this class.
  */
 public class DeliveryVehicle {
-	/**
+
+
+    private final int _licence;
+    private final int _speed;
+
+    /**
      * Constructor.   
      */
 	 public DeliveryVehicle(int license, int speed) {
-		// TODO Implement this
+		_licence = license;
+		_speed = speed;
 	  }
 	/**
      * Retrieves the license of this delivery vehicle.   
      */
 	public int getLicense() {
-		// TODO Implement this
-		return 0;
+		return _licence;
 	}
 	
 	/**
@@ -27,8 +34,7 @@ public class DeliveryVehicle {
      * @return Number of ticks needed for 1 Km.
      */
 	public int getSpeed() {
-		// TODO Implement this
-		return 0;
+		return _speed;
 	}
 	
 	/**
@@ -39,6 +45,18 @@ public class DeliveryVehicle {
      * @param distance	The distance from the store to the customer.
      */
 	public void deliver(String address, int distance) {
-		// TODO Implement this
-	}
+		// calculation of time needed to arrive, we like physics
+        long time = distance/_speed;
+
+        // parse time to milliseconds
+        long timeToSleep = TimeUnit.HOURS.convert(time, TimeUnit.MILLISECONDS);
+
+        try {   // thread goes to sleep -- simulates a delivery
+            Thread.sleep(timeToSleep);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+
+    }
 }

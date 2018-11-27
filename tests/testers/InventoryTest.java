@@ -10,9 +10,10 @@ import org.junit.Test;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.lang.reflect.Field;
 import java.util.HashMap;
 
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertNotNull;
 import static junit.framework.TestCase.assertTrue;
 
 public class InventoryTest {
@@ -40,7 +41,7 @@ public class InventoryTest {
      */
     @Test
     public void testGetInstance() {
-        Assert.assertNotNull(testInventory); //Checks if the singleton design pattern has been implemented correctly.
+        assertNotNull(testInventory); //Checks if the singleton design pattern has been implemented correctly.
     }
 
     /**
@@ -51,8 +52,8 @@ public class InventoryTest {
     @Test
     public void testLoad() {
         //checking if the items were loaded to inventory
-        res = testInventory.take(bookInventoryInfos[0].getBookTitle());
-        Assert.assertEquals(res,OrderResult.SUCCESSFULLY_TAKEN);
+        res = testInventory.take(bookInventoryInfos[0].get_bookTitle());
+        assertEquals(res,OrderResult.SUCCESSFULLY_TAKEN);
 
     }
 
@@ -63,9 +64,9 @@ public class InventoryTest {
     @Test
     public void testTake_decreasingAmount() {
         //If amount of taken book decreasing (from one to zero) after action.
-        res = testInventory.take(bookInventoryInfos[2].getBookTitle());
-        isAvailable = testInventory.checkAvailabiltyAndGetPrice(bookInventoryInfos[2].getBookTitle());
-        Assert.assertEquals(-1, isAvailable);
+        res = testInventory.take(bookInventoryInfos[2].get_bookTitle());
+        isAvailable = testInventory.checkAvailabiltyAndGetPrice(bookInventoryInfos[2].get_bookTitle());
+        assertEquals(-1, isAvailable);
     }
 
     /**
@@ -73,8 +74,8 @@ public class InventoryTest {
      */
     @Test
     public void testTake_successfullyTaken() {
-        res = testInventory.take(bookInventoryInfos[1].getBookTitle());
-        Assert.assertEquals(res, OrderResult.SUCCESSFULLY_TAKEN);
+        res = testInventory.take(bookInventoryInfos[1].get_bookTitle());
+        assertEquals(res, OrderResult.SUCCESSFULLY_TAKEN);
     }
 
     /**
@@ -84,7 +85,7 @@ public class InventoryTest {
     public void testTake_nonExisting() {
         //If tried to take non existing book
         res = testInventory.take("nonExistingBook");
-        Assert.assertEquals(OrderResult.NOT_IN_STOCK,res);
+        assertEquals(OrderResult.NOT_IN_STOCK,res);
     }
 
     /**
@@ -94,8 +95,8 @@ public class InventoryTest {
     @Test
     public void testCheckAvailabilityAndGetPrice_ExistingBook() {
         //checking if an existing book is available and received the same price
-        isAvailable = testInventory.checkAvailabiltyAndGetPrice(bookInventoryInfos[2].getBookTitle());
-        Assert.assertEquals(isAvailable,bookInventoryInfos[2].getPrice());
+        isAvailable = testInventory.checkAvailabiltyAndGetPrice(bookInventoryInfos[2].get_bookTitle());
+        assertEquals(isAvailable,bookInventoryInfos[2].getPrice());
     }
 
     /**
@@ -114,9 +115,9 @@ public class InventoryTest {
     //------- printInventoryToFile -------
     @Test
     public void printInventoryToFile() {
-        String file = "src/books.txt";
+        String file = "books.txt";
         testInventory.printInventoryToFile(file);
-        HashMap<String,Integer> books = null;
+        HashMap<String,Integer> books = new HashMap<>();
 
         // Deserialization
         try
@@ -130,23 +131,13 @@ public class InventoryTest {
 
             in.close();
             fileInputStream.close();
-        }
+        } catch(IOException ex) {} //when the file not found, an exception will be thrown
 
-        catch(IOException ex) //when the file is empty, or not found, an exception will be thrown
-        {
-            books = new HashMap<String,Integer>();
-        }
-
-        catch(ClassNotFoundException ex)
-        {
-            books = new HashMap<String,Integer>();
-            System.out.println("ClassNotFoundException is caught");
-        }
+        catch(ClassNotFoundException ex) {} // when the file is empty, an exception will be thrown
 
         //after deserialization, we get the books hashmap from the inventory instance
-
         // checks if they hold the same books
-        Assert.assertTrue(testInventoryMap.equals(books));
+        assertTrue(testInventoryMap.equals(books));
     }
 
     /**
@@ -159,7 +150,7 @@ public class InventoryTest {
         bookInventoryInfos[1] = new BookInventoryInfo("50ShadesOfGray",3,99);
         bookInventoryInfos[2] = new BookInventoryInfo("midSummerNightDreams",1,105);
         for (int i = 0; i < bookInventoryInfos.length; i++) {
-            testInventoryMap.put(bookInventoryInfos[i].getBookTitle(),bookInventoryInfos[i].getAmountInInventory());
+            testInventoryMap.put(bookInventoryInfos[i].get_bookTitle(),bookInventoryInfos[i].get_amountInInventory());
         }
         return bookInventoryInfos;
     }

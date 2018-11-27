@@ -21,7 +21,7 @@ public class APIService extends MicroService{
 	@Override
 	protected void initialize() {
 		// TODO Implement this
-		
+
 	}
 
 }
