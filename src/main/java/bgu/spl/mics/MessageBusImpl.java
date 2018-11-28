@@ -37,7 +37,22 @@ public class MessageBusImpl implements MessageBus {
 	@Override
 	public <T> void subscribeEvent(Class<? extends Event<T>> type, MicroService m)
     {
-		// TODO Auto-generated method stub
+		if (_messagesSubscriptions.containsKey(type))
+        {
+            // finding the event type
+//            Vector<MicroService> typesList = _messagesSubscriptions.get(type);
+//            typesList.add(m);
+        }
+        else
+        {
+//            Vector<MicroService> typesList = new Vector<>();
+//            typesList.add(m);
+            // adding the event type
+//            _messagesSubscriptions.put(type,typesList);
+        }
+        // return the T object
+//        type.get
+
 	}
 
 	@Override
@@ -73,11 +88,31 @@ public class MessageBusImpl implements MessageBus {
 	@Override
 	public <T> Future<T> sendEvent(Event<T> e)
     {
-		// TODO Auto-generated method stub
-		return null;
+        MicroService m = roundRobinAlgo(e);
+        if (m == null)  // in case there is no micro service matching this event
+            return null;
+
+        // event addition
+        _messagesQueues.get(m).add(e);
+
+		// TODO goes to sleep ?? what happens til the micro service finished tasking
+		return new Future<T>();
 	}
 
-	@Override
+
+    /**
+     * Finds the micro service that is going to get the {@code e} event and return it
+     * @param e
+     * @param <T>
+     * @return
+     */
+    private <T> MicroService roundRobinAlgo(Event<T> e) {
+        // TODO : implement round-robin fashion
+        MicroService m = null;
+        return m;
+	}
+
+    @Override
 	public void register(MicroService m)
     {
 	    Vector<Message> messages = new Vector<>();
