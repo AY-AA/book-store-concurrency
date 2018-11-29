@@ -1,5 +1,6 @@
 package testers;
 
+import bgu.spl.mics.MicroService;
 import org.junit.Before;
 import org.junit.Test;
 import bgu.spl.mics.Future;
@@ -8,12 +9,12 @@ import static org.junit.Assert.*;
 
 public class FutureTest {
 
-    Future future;
+    Future _future;
 
     @Before
     public void setUp() throws Exception
     {
-        future = new Future();
+        _future = new Future<String>();
     }
 
     /**
@@ -22,7 +23,7 @@ public class FutureTest {
     @Test
     public void testInitialization()
     {
-        assertNotNull(future);
+        assertNotNull(_future);
     }
 
     /**
@@ -31,7 +32,7 @@ public class FutureTest {
     @Test
     public void get()
     {
-        assertNull(future.get());
+        assertNull(_future.get());
     }
 
     /**
@@ -40,9 +41,8 @@ public class FutureTest {
     @Test
     public void resolve()
     {
-        Object result = new Object();
-        future.resolve(result);
-        assertNotNull(future.get());
+        _future.resolve("Resolved");
+        assertEquals("Resolved",_future.get());
     }
 
     /**
@@ -52,14 +52,13 @@ public class FutureTest {
     public void resolveTwice()
     {
         // resolve once
-        Object result = new Object();
-        future.resolve(result);
+        String result = "Resolved";
+        _future.resolve(result);
 
         // resolve again , Future must deny this one
-        Object result1 = new Object();
-        future.resolve(result1);
+        _future.resolve("AGAIN!");
 
-        assertEquals(future.get(),result);
+        assertEquals(result,_future.get());
     }
 
     /**
@@ -68,9 +67,9 @@ public class FutureTest {
     @Test
     public void isDone()
     {
-        Object resultOfFuture = future.get();
+        Object resultOfFuture = _future.get();
         boolean hasResult = resultOfFuture != null;
-        assertEquals(hasResult,future.isDone());
+        assertEquals(hasResult,_future.isDone());
     }
 
     /**
@@ -81,6 +80,7 @@ public class FutureTest {
     @Test
     public void getWithTimeArgue()
     {
+
         // 5 seconds will be converted into seconds in get function of Future object
         long timeoutSeconds = 5L;
         TimeUnit unit = TimeUnit.SECONDS;
@@ -88,7 +88,7 @@ public class FutureTest {
         // current time
         long startTime = System.currentTimeMillis();
 
-        Object result = future.get(timeoutSeconds,unit);
+        Object result = _future.get(timeoutSeconds,unit);
 
         // elapsed time
         long elapsedTime = System.currentTimeMillis()-startTime;
