@@ -1,6 +1,5 @@
 package bgu.spl.mics;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Vector;
 
@@ -25,7 +24,11 @@ public class MessageBusImpl implements MessageBus {
     // and the value of each message is the future object represents the result might become out of the event
     private HashMap<Message,Future> _messagesAndFutures;
 
-	public static MessageBusImpl getInstance()
+    // this hash map represents messages as keys
+    // and the value of each message is the last index of micro service that got the message
+    private HashMap<Object,Integer> _roundRobinNum;
+
+    public static MessageBusImpl getInstance()
     {
         if (messageBus == null)
             messageBus = new MessageBusImpl();
@@ -37,6 +40,7 @@ public class MessageBusImpl implements MessageBus {
         _messagesQueues = new HashMap<>();
         _messagesSubscriptions = new HashMap<>();
         _messagesAndFutures = new HashMap<>();
+        _roundRobinNum = new HashMap<>();
 	}
 
 	@Override
@@ -46,6 +50,7 @@ public class MessageBusImpl implements MessageBus {
 		if (!_messagesSubscriptions.containsKey(type))
         {
             _messagesSubscriptions.put(type,new Vector<>());
+            _roundRobinNum.put(type,0);
         }
         // subscribe m to the event
         _messagesSubscriptions.get(type).add(m);
@@ -57,6 +62,7 @@ public class MessageBusImpl implements MessageBus {
         // if broadcast does not exist, add it
         if (!_messagesSubscriptions.containsKey(type))
         {
+            _roundRobinNum.put(type,0);
             _messagesSubscriptions.put(type,new Vector<>());
         }
         // subscribe m to the broadcast
@@ -67,7 +73,9 @@ public class MessageBusImpl implements MessageBus {
 	@Override
 	public <T> void complete(Event<T> e, T result)
     {
-		_messagesAndFutures.get(e).resolve(result);
+		Future future = _messagesAndFutures.get(e);
+		if (future != null)
+		    future.resolve(result);
 	}
 
 	@Override
@@ -110,8 +118,23 @@ public class MessageBusImpl implements MessageBus {
      * @return
      */
     private <T> MicroService roundRobinAlgo(Event<T> e) {
-        // TODO : implement round-robin fashion
-        MicroService m = null;
+        Vector<MicroService> subscribedToE = _messagesSubscriptions.get(e.getClass());
+
+        // if no one is registered to this event or micro service has been unregistered
+        if (subscribedToE == null || subscribedToE.isEmpty())
+            return null;
+
+        // the last index of the micro service that was sent
+        int currMicroService = _roundRobinNum.get(e.getClass());
+        int numOfMicroServices = subscribedToE.size();
+
+        // we check size again because a micro service could be unregistered
+        currMicroService = currMicroService % numOfMicroServices;
+        MicroService m = subscribedToE.get(currMicroService);
+
+        // modulo again, if number is bigger than size
+        currMicroService = (currMicroService + 1) % numOfMicroServices;
+        _roundRobinNum.put(e.getClass(),currMicroService);
         return m;
 	}
 
@@ -124,8 +147,21 @@ public class MessageBusImpl implements MessageBus {
 	@Override
 	public void unregister(MicroService m)
     {
-	    if (_messagesQueues.containsKey(m))
-            _messagesQueues.put(m,null);
+	    if (!_messagesQueues.containsKey(m))
+	        return;
+	    // remove m from _messagesSubscriptions
+        Vector<Message> messages = _messagesQueues.get(m);
+        for (Message msg : messages)
+        {
+            if (_messagesSubscriptions.containsKey(msg))
+            {
+                Vector<MicroService> microServices = _messagesSubscriptions.get(msg);
+                if (microServices.contains(m))
+                    microServices.remove(m);
+            }
+        }
+	    _messagesQueues.put(m,null);
+
 	}
 
 	@Override
@@ -139,13 +175,15 @@ public class MessageBusImpl implements MessageBus {
         catch (IllegalStateException e){
             return null;
         }
-        try{
+//        try{
             while(_messagesQueues.get(m).isEmpty())
-                wait();
+            {
+//                wait();
+            }
             msg = _messagesQueues.get(m).firstElement();
             _messagesQueues.get(m).remove(msg);
-        }
-        catch (InterruptedException e){}
+//        }
+//        catch (InterruptedException e){}
         notifyAll();
         return msg;
 	}
