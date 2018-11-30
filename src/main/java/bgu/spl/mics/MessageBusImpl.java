@@ -19,7 +19,11 @@ public class MessageBusImpl implements MessageBus {
 
     // this hash map represents messages as keys
     // and the value of each message is the array list which holds all micro services subscribed to a certain message
-    private HashMap<Message,Vector<MicroService> >_messagesSubscriptions;
+    private HashMap<Object,Vector<MicroService> >_messagesSubscriptions;
+
+    // this hash map represents messages as keys
+    // and the value of each message is the future object represents the result might become out of the event
+    private HashMap<Message,Future> _messagesAndFutures;
 
 	public static MessageBusImpl getInstance()
     {
@@ -32,41 +36,38 @@ public class MessageBusImpl implements MessageBus {
     {
         _messagesQueues = new HashMap<>();
         _messagesSubscriptions = new HashMap<>();
+        _messagesAndFutures = new HashMap<>();
 	}
 
 	@Override
 	public <T> void subscribeEvent(Class<? extends Event<T>> type, MicroService m)
     {
-		if (_messagesSubscriptions.containsKey(type))
+        // if event does not exist, add it
+		if (!_messagesSubscriptions.containsKey(type))
         {
-            // finding the event type
-//            Vector<MicroService> typesList = _messagesSubscriptions.get(type);
-//            typesList.add(m);
+            _messagesSubscriptions.put(type,new Vector<>());
         }
-        else
-        {
-//            Vector<MicroService> typesList = new Vector<>();
-//            typesList.add(m);
-            // adding the event type
-//            _messagesSubscriptions.put(type,typesList);
-        }
-        // return the T object
-//        type.get
-
+        // subscribe m to the event
+        _messagesSubscriptions.get(type).add(m);
 	}
 
 	@Override
 	public void subscribeBroadcast(Class<? extends Broadcast> type, MicroService m)
     {
-		// TODO Auto-generated method stub
+        // if broadcast does not exist, add it
+        if (!_messagesSubscriptions.containsKey(type))
+        {
+            _messagesSubscriptions.put(type,new Vector<>());
+        }
+        // subscribe m to the broadcast
+        _messagesSubscriptions.get(type).add(m);
 
 	}
 
 	@Override
 	public <T> void complete(Event<T> e, T result)
     {
-		// TODO Auto-generated method stub
-
+		_messagesAndFutures.get(e).resolve(result);
 	}
 
 	@Override
@@ -79,7 +80,7 @@ public class MessageBusImpl implements MessageBus {
         for (MicroService m : microServices)
         {
             Vector<Message> currMsgVec = _messagesQueues.get(m);
-            if (currMsgVec != null)
+            if (currMsgVec != null)     // null means the micro service is not registered
                 currMsgVec.add(b);
         }
     }
@@ -95,9 +96,11 @@ public class MessageBusImpl implements MessageBus {
         // event addition
         _messagesQueues.get(m).add(e);
 
-		// TODO goes to sleep ?? what happens til the micro service finished tasking
-		return new Future<T>();
-	}
+		Future<T> future = new Future<>();
+		_messagesAndFutures.put(e,future);
+
+        return future;
+    }
 
 
     /**
@@ -115,8 +118,7 @@ public class MessageBusImpl implements MessageBus {
     @Override
 	public void register(MicroService m)
     {
-	    Vector<Message> messages = new Vector<>();
-        _messagesQueues.put(m,messages);
+        _messagesQueues.put(m,new Vector<>());
 	}
 
 	@Override
@@ -127,19 +129,25 @@ public class MessageBusImpl implements MessageBus {
 	}
 
 	@Override
-	public Message awaitMessage(MicroService m) throws InterruptedException
+	public synchronized Message awaitMessage(MicroService m) throws InterruptedException
     {
         Message msg = null;
-        if (_messagesQueues.containsKey(m))
-        {
-            Vector<Message> mQueue = _messagesQueues.get(m);
-            if (mQueue != null && !mQueue.isEmpty())
-            {
-                msg = mQueue.firstElement();
-                mQueue.remove(msg);
-            }
+        Vector<Message> mQueue = null;
+        try {
+            mQueue = _messagesQueues.get(m);
         }
-		return msg;
+        catch (IllegalStateException e){
+            return null;
+        }
+        try{
+            while(_messagesQueues.get(m).isEmpty())
+                wait();
+            msg = _messagesQueues.get(m).firstElement();
+            _messagesQueues.get(m).remove(msg);
+        }
+        catch (InterruptedException e){}
+        notifyAll();
+        return msg;
 	}
 
 	
