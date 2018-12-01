@@ -62,6 +62,9 @@ public class MessageBusImpl implements MessageBus {
 	@Override
 	public void subscribeBroadcast(Class<? extends Broadcast> type, MicroService m)
     {
+        // if micro service is not registered, return
+        if (!_messagesQueues.containsKey(m) || _messagesQueues.get(m) == null)
+            return;
         // if broadcast does not exist, add it
         if (!_messagesSubscriptions.containsKey(type))
         {
@@ -153,14 +156,11 @@ public class MessageBusImpl implements MessageBus {
 	    if (!_messagesQueues.containsKey(m))
 	        return;
 	    // remove m from _messagesSubscriptions
-        Vector<Message> messages = _messagesQueues.get(m);
-        for (Message msg : messages)
+        for (Vector<MicroService> currVector : _messagesSubscriptions.values())
         {
-            if (_messagesSubscriptions.containsKey(msg))
+            if (currVector.contains(m))
             {
-                Vector<MicroService> microServices = _messagesSubscriptions.get(msg);
-                if (microServices.contains(m))
-                    microServices.remove(m);
+                currVector.remove(m);
             }
         }
 	    _messagesQueues.put(m,null);
