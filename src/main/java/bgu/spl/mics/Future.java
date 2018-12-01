@@ -36,7 +36,8 @@ public class Future<T> {
      * Resolves the result of this Future object.
      */
 	public void resolve (T result) {
-		_result = result;
+		if (_result == null)
+			_result = result;
 	}
 	
 	/**
@@ -71,5 +72,4 @@ public class Future<T> {
         }
 		return null;
 	}
-
 }
