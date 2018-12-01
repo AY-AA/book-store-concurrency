@@ -47,7 +47,7 @@ public class MessageBusImpl implements MessageBus {
 	public <T> void subscribeEvent(Class<? extends Event<T>> type, MicroService m)
     {
         // if micro service is not registered, return
-        if (!_messagesQueues.containsKey(m))
+        if (!_messagesQueues.containsKey(m) || _messagesQueues.get(m) == null)
             return;
         // if event does not exist, add it
 		if (!_messagesSubscriptions.containsKey(type))
