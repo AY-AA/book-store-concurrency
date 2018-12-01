@@ -18,7 +18,6 @@ import java.util.List;
 public class MoneyRegister {
 
 	private static MoneyRegister _moneyRegister;
-
 	private List<OrderReceipt> _ordersList;
 
 	/**

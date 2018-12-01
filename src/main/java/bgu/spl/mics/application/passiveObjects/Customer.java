@@ -87,6 +87,6 @@ public class Customer {
 	}
 
     public void charge(int amount) {
-	    _availableCreditAmount =- amount;
+	    _availableCreditAmount -= amount;
     }
 }
