@@ -164,7 +164,6 @@ public class MessageBusImpl implements MessageBus {
             }
         }
 	    _messagesQueues.put(m,null);
-
 	}
 
 	@Override
