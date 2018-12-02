@@ -1,4 +1,4 @@
-package testers;
+package java;
 
 import bgu.spl.mics.*;
 import bgu.spl.mics.example.messages.ExampleBroadcast;

@@ -1,6 +1,5 @@
-package testers;
+package java;
 
-import bgu.spl.mics.MicroService;
 import org.junit.Before;
 import org.junit.Test;
 import bgu.spl.mics.Future;
