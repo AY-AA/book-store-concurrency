@@ -35,6 +35,7 @@ public class Future<T> {
 					wait();
 				} catch (InterruptedException e) {
 					e.printStackTrace();
+//					return _result; ?
 				}
 			}
 		}
@@ -75,11 +76,13 @@ public class Future<T> {
 	        return _result;
         long timeToSleep  = TimeUnit.MILLISECONDS.convert(timeout, unit);
         // TODO : think of a way of getting the thread back before the given time
+		// while (!isDone) - busy wait?
+		// split to small time units? every timeout/ 100 mill. lap try again?
         try {
             Thread.sleep(timeToSleep);
         } catch (InterruptedException e) { // thread might be interrupted
             e.printStackTrace();
         }
-		return null;
+		return _result;
 	}
 }
