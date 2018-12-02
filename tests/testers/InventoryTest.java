@@ -54,7 +54,6 @@ public class InventoryTest {
         //checking if the items were loaded to inventory
         res = testInventory.take(bookInventoryInfos[0].get_bookTitle());
         assertEquals(res,OrderResult.SUCCESSFULLY_TAKEN);
-
     }
 
     /**
@@ -62,7 +61,7 @@ public class InventoryTest {
      */
     //------- take -------
     @Test
-    public void testTake_decreasingAmount() {
+    public void testTake_lastBook() {
         //If amount of taken book decreasing (from one to zero) after action.
         res = testInventory.take(bookInventoryInfos[2].get_bookTitle());
         isAvailable = testInventory.checkAvailabiltyAndGetPrice(bookInventoryInfos[2].get_bookTitle());

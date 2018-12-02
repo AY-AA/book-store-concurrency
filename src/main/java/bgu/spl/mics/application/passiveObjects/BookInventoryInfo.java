@@ -8,9 +8,9 @@ package bgu.spl.mics.application.passiveObjects;
  */
 public class BookInventoryInfo {
 
-	private String _bookTitle;
+	private final String _bookTitle;
 	private int _amountInInventory;
-	private int _price;
+	private final int _price;
 
     public BookInventoryInfo(String _bookTitle, int amountInInventory, int price) {
         this._bookTitle = _bookTitle;
@@ -44,4 +44,11 @@ public class BookInventoryInfo {
 	public int getPrice() {
 		return _price;
 	}
+
+	public void takeBook()
+	{
+		if (_amountInInventory != 0)
+			_amountInInventory--;
+	}
+
 }

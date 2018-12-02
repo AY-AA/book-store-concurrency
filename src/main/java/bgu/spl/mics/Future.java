@@ -29,17 +29,17 @@ public class Future<T> {
      * 	       
      */
 	public T get() {
-		synchronized (_result){
-			while (_result == null) {
-				try {
-					wait();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-//					return _result; ?
-				}
-			}
-		}
-		notifyAll();
+//		synchronized (_result){
+//			while (_result == null) {
+//				try {
+//					wait();
+//				} catch (InterruptedException e) {
+//					e.printStackTrace();
+////					return _result; ?
+//				}
+//			}
+//		}
+//		notifyAll();
 		return _result;
 	}
 	
