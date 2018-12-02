@@ -1,7 +1,7 @@
 package bgu.spl.mics.application.passiveObjects;
 
 
-import bgu.spl.mics.Accessories.FilePrinter;
+import Accessories.*;
 
 import java.util.HashMap;
 import java.util.Vector;
