@@ -1,4 +1,4 @@
-package Accessories;
+package bgu.spl.mics.Accessories;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
