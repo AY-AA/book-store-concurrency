@@ -17,7 +17,9 @@ import java.util.HashMap;
  */
 public class Inventory {
 
-	private static Inventory _singleInventory;
+	private static class InventoryHolder {
+		private static Inventory _inventory = new Inventory();
+	}
 	private HashMap<String, Integer> _bookInventoryInfo;
 
 	private Inventory(){
@@ -28,10 +30,7 @@ public class Inventory {
      * Retrieves the single instance of this class.
      */
 	public static Inventory getInstance() {
-		if(_singleInventory == null){
-		    _singleInventory = new Inventory();
-        }
-		return _singleInventory;
+		return InventoryHolder._inventory;
 	}
 	
 	/**

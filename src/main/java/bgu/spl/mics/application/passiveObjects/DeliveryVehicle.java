@@ -50,7 +50,7 @@ public class DeliveryVehicle {
 
         // parse time to milliseconds
         long timeToSleep = TimeUnit.HOURS.convert(time, TimeUnit.MILLISECONDS);
-
+		//TODO : check it
         try {   // thread goes to sleep -- simulates a delivery
             Thread.sleep(timeToSleep);
         } catch (InterruptedException e) {

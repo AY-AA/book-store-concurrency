@@ -10,7 +10,10 @@ import java.util.Vector;
  */
 public class MessageBusImpl implements MessageBus {
 
-	private static MessageBusImpl messageBus;
+
+    private static class MessageBusImplHolder {
+        private static MessageBusImpl _messageBus = new MessageBusImpl();
+    }
 
     // this hash map represents each micro service and its queue
 	// whenever a micro service's message vector is null, it means it has been unregistered
@@ -30,9 +33,7 @@ public class MessageBusImpl implements MessageBus {
 
     public static MessageBusImpl getInstance()
     {
-        if (messageBus == null)
-            messageBus = new MessageBusImpl();
-        return messageBus;
+        return MessageBusImplHolder._messageBus;
     }
 
     private MessageBusImpl()
@@ -179,7 +180,7 @@ public class MessageBusImpl implements MessageBus {
             return null;
         }
 //        try{
-            while(_messagesQueues.get(m).isEmpty())
+//            while(_messagesQueues.get(m).isEmpty())
             {
 //                wait();
             }
