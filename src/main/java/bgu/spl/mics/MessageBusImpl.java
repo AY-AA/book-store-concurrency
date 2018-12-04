@@ -16,7 +16,7 @@ public class MessageBusImpl implements MessageBus {
     }
 
     // this hash map represents each micro service and its queue
-	// whenever a micro service's message vector is null, it means it has been unregistered
+    // whenever a micro service's message vector is null, it means it has been unregistered
     private HashMap<MicroService, Vector<Message>> _messagesQueues;
 
     // this hash map represents messages as keys
@@ -42,10 +42,10 @@ public class MessageBusImpl implements MessageBus {
         _messagesSubscriptions = new HashMap<>();
         _messagesAndFutures = new HashMap<>();
         _roundRobinNum = new HashMap<>();
-	}
+    }
 
-	@Override
-	public <T> void subscribeEvent(Class<? extends Event<T>> type, MicroService m)
+    @Override
+    public <T> void subscribeEvent(Class<? extends Event<T>> type, MicroService m)
     {
         // TODO: subscribers must subscribe one by one!
 
@@ -53,17 +53,17 @@ public class MessageBusImpl implements MessageBus {
         if (!_messagesQueues.containsKey(m) || _messagesQueues.get(m) == null)
             return;
         // if event does not exist, add it
-		if (!_messagesSubscriptions.containsKey(type))
+        if (!_messagesSubscriptions.containsKey(type))
         {
-            _messagesSubscriptions.put(type,new Vector<>());
             _roundRobinNum.put(type,0);
+            _messagesSubscriptions.put(type,new Vector<>());
         }
         // subscribe m to the event
         _messagesSubscriptions.get(type).add(m);
-	}
+    }
 
-	@Override
-	public void subscribeBroadcast(Class<? extends Broadcast> type, MicroService m)
+    @Override
+    public void subscribeBroadcast(Class<? extends Broadcast> type, MicroService m)
     {
         // if micro service is not registered, return
         if (!_messagesQueues.containsKey(m) || _messagesQueues.get(m) == null)
@@ -77,18 +77,18 @@ public class MessageBusImpl implements MessageBus {
         // subscribe m to the broadcast
         _messagesSubscriptions.get(type).add(m);
 
-	}
+    }
 
-	@Override
-	public <T> void complete(Event<T> e, T result)
+    @Override
+    public <T> void complete(Event<T> e, T result)
     {
-		Future future = _messagesAndFutures.get(e);
-		if (future != null)
-		    future.resolve(result);
-	}
+        Future future = _messagesAndFutures.get(e);
+        if (future != null)
+            future.resolve(result);
+    }
 
-	@Override
-	public synchronized void sendBroadcast(Broadcast b)
+    @Override
+    public void sendBroadcast(Broadcast b)
     {
         // at first we need to find all micro services subscribed to b
         Vector<MicroService> microServices = _messagesSubscriptions.get(b.getClass());
@@ -97,26 +97,33 @@ public class MessageBusImpl implements MessageBus {
         for (MicroService m : microServices)
         {
             Vector<Message> currMsgVec = _messagesQueues.get(m);
-            if (currMsgVec != null)     // null means the micro service is not registered
+
+            if (currMsgVec == null)     // null means the micro service is not registered
+                continue;
+            synchronized (currMsgVec) {
                 currMsgVec.add(b);
-            notifyAll();
+                currMsgVec.notifyAll();
+            }
+
         }
     }
 
-	
-	@Override
-	public <T> Future<T> sendEvent(Event<T> e)
+
+    @Override
+    public <T> Future<T> sendEvent(Event<T> e)
     {
         MicroService m = roundRobinAlgo(e);
         if (m == null)  // in case there is no micro service matching this event
             return null;
 
         // event addition
-        _messagesQueues.get(m).add(e);
-
-		Future<T> future = new Future<>();
-		_messagesAndFutures.put(e,future);
-
+        Vector<Message> mQueue = _messagesQueues.get(m);
+        Future<T> future = new Future<>();
+        synchronized (mQueue) {
+            mQueue.add(e);
+            _messagesAndFutures.put(e,future);
+            mQueue.notifyAll();
+        }
         return future;
     }
 
@@ -146,20 +153,20 @@ public class MessageBusImpl implements MessageBus {
         currMicroService = (currMicroService + 1) % numOfMicroServices;
         _roundRobinNum.put(e.getClass(),currMicroService);
         return m;
-	}
+    }
 
     @Override
-	public void register(MicroService m)
+    public void register(MicroService m)
     {
         _messagesQueues.put(m,new Vector<>());
-	}
+    }
 
-	@Override
-	public void unregister(MicroService m)
+    @Override
+    public void unregister(MicroService m)
     {
-	    if (!_messagesQueues.containsKey(m))
-	        return;
-	    // remove m from _messagesSubscriptions
+        if (!_messagesQueues.containsKey(m))
+            return;
+        // remove m from _messagesSubscriptions
         for (Vector<MicroService> currVector : _messagesSubscriptions.values())
         {
             if (currVector.contains(m))
@@ -167,38 +174,36 @@ public class MessageBusImpl implements MessageBus {
                 currVector.remove(m);
             }
         }
-	    _messagesQueues.put(m,null);
-	}
+        _messagesQueues.put(m,null);
+    }
 
-	@Override
-	public synchronized Message awaitMessage(MicroService m) throws InterruptedException
-    {
+    @Override
+    public Message awaitMessage(MicroService m) throws InterruptedException {
         Message msg = null;
         Vector<Message> mQueue = null;
-        boolean isInterrupted = false;
         try {
             mQueue = _messagesQueues.get(m);
-        }
-        catch (IllegalStateException e){
+        } catch (IllegalStateException e) {
             return null;
         }
-        try{
-            while(_messagesQueues.get(m).isEmpty())
-            {
-                wait();
-            }
-            if (!isInterrupted) {
+        if (mQueue == null)
+            return null;
+        synchronized (mQueue) {
+            try {
+                while (_messagesQueues.get(m).isEmpty()) {
+                    mQueue.wait();
+                }
                 msg = _messagesQueues.get(m).firstElement();
                 _messagesQueues.get(m).remove(msg);
+            } catch (InterruptedException e){
+                Thread.currentThread().interrupt();
+                return null;
             }
+            mQueue.notifyAll();
         }
-        catch (InterruptedException e){
-            isInterrupted = true;
-        }
-        notifyAll();
         return msg;
-	}
+    }
 
-	
+
 
 }

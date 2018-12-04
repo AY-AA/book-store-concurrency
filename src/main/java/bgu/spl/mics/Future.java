@@ -1,88 +1,116 @@
 package bgu.spl.mics;
 
+import Accessories.ReaderWriter;
+
 import java.util.concurrent.TimeUnit;
 
 /**
  * A Future object represents a promised result - an object that will
  * eventually be resolved to hold a result of some operation. The class allows
  * Retrieving the result once it is available.
- * 
+ *
  * Only private methods may be added to this class.
  * No public constructor is allowed except for the empty constructor.
  */
-public class Future<T> {
+public class Future<T> extends ReaderWriter<T> {
 
-	T _result;
+	private T _result;
+	private Object _resultLocker;
+
 	/**
 	 * This should be the the only public constructor in this class.
 	 */
 	public Future() {
-        _result= null;
+		_result= null;
+		_resultLocker = new Object();
 	}
-	
+
 	/**
-     * retrieves the result the Future object holds if it has been resolved.
-     * This is a blocking method! It waits for the computation in case it has
-     * not been completed.
-     * <p>
-     * @return return the result of type T if it is available, if not wait until it is available.
-     * 	       
-     */
+	 * retrieves the result the Future object holds if it has been resolved.
+	 * This is a blocking method! It waits for the computation in case it has
+	 * not been completed.
+	 * <p>
+	 * @return return the result of type T if it is available, if not wait until it is available.
+	 *
+	 */
 	public T get() {
-//		synchronized (_result){
-//			while (_result == null) {
-//				try {
-//					wait();
-//				} catch (InterruptedException e) {
-//					e.printStackTrace();
-////					return _result; ?
-//				}
-//			}
-//		}
-//		notifyAll();
+		beforeRead();
+		synchronized (_resultLocker){
+			while (!isDone()) {
+//                _activeReaders --;
+				try {
+					wait();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+//            _activeReaders ++;
+			_resultLocker.notifyAll();
+		}
+		afterRead();
 		return _result;
 	}
-	
+
 	/**
-     * Resolves the result of this Future object.
-     */
+	 * Resolves the result of this Future object.
+	 */
 	public void resolve (T result) {
-		if (_result == null)
-			_result = result;
+		beforeWrite();
+		synchronized (_resultLocker) {
+			if (_result == null)
+				_result = result;
+			_resultLocker.notifyAll();
+		}
+		afterWrite();
 	}
-	
+
 	/**
-     * @return true if this object has been resolved, false otherwise
-     */
+	 * @return true if this object has been resolved, false otherwise
+	 */
 	public boolean isDone() {
 		if (_result == null)
-		    return false;
+			return false;
 		return true;
 	}
-	
+
 	/**
-     * retrieves the result the Future object holds if it has been resolved,
-     * This method is non-blocking, it has a limited amount of time determined
-     * by {@code timeout}
-     * <p>
-     * @param timeout 	the maximal amount of time units to wait for the result.
-     * @param unit		the {@link TimeUnit} time units to wait.
-     * @return return the result of type T if it is available, if not, 
-     * 	       wait for {@code timeout} TimeUnits {@code unit}. If time has
-     *         elapsed, return null.
-     */
+	 * retrieves the result the Future object holds if it has been resolved,
+	 * This method is non-blocking, it has a limited amount of time determined
+	 * by {@code timeout}
+	 * <p>
+	 * @param timeout 	the maximal amount of time units to wait for the result.
+	 * @param unit		the {@link TimeUnit} time units to wait.
+	 * @return return the result of type T if it is available, if not,
+	 * 	       wait for {@code timeout} TimeUnits {@code unit}. If time has
+	 *         elapsed, return null.
+	 */
 	public T get(long timeout, TimeUnit unit) {
-	    if (_result != null)
-	        return _result;
-        long timeToSleep  = TimeUnit.MILLISECONDS.convert(timeout, unit);
-        // TODO : think of a way of getting the thread back before the given time
-		// while (!isDone) - busy wait?
-		// split to small time units? every timeout/ 100 mill. lap try again?
-        try {
-            Thread.sleep(timeToSleep);
-        } catch (InterruptedException e) { // thread might be interrupted
-            e.printStackTrace();
-        }
+		beforeRead();
+		synchronized (_resultLocker){
+			//                _activeReaders --;
+
+			if (_result != null) {
+				_resultLocker.notifyAll();
+				//            _activeReaders ++;
+				return _result;
+			}
+			long timeToSleep  = TimeUnit.MILLISECONDS.convert(timeout, unit);
+			try {
+				_resultLocker.wait(timeToSleep);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+			}
+			//            _activeReaders ++;
+			_resultLocker.notifyAll();
+		}
+		afterRead();
 		return _result;
+
 	}
+
+	@Override
+	protected void read1() {}
+
+	@Override
+	protected void write1() {}
 }
