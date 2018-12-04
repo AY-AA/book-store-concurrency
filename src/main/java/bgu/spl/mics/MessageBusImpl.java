@@ -47,6 +47,8 @@ public class MessageBusImpl implements MessageBus {
 	@Override
 	public <T> void subscribeEvent(Class<? extends Event<T>> type, MicroService m)
     {
+        // TODO: subscribers must subscribe one by one!
+
         // if micro service is not registered, return
         if (!_messagesQueues.containsKey(m) || _messagesQueues.get(m) == null)
             return;
@@ -86,10 +88,10 @@ public class MessageBusImpl implements MessageBus {
 	}
 
 	@Override
-	public void sendBroadcast(Broadcast b)
+	public synchronized void sendBroadcast(Broadcast b)
     {
         // at first we need to find all micro services subscribed to b
-        Vector<MicroService> microServices = _messagesSubscriptions.get(b);
+        Vector<MicroService> microServices = _messagesSubscriptions.get(b.getClass());
 
         // for each micro service subscribed to b we insert the message b into its list
         for (MicroService m : microServices)
@@ -97,6 +99,7 @@ public class MessageBusImpl implements MessageBus {
             Vector<Message> currMsgVec = _messagesQueues.get(m);
             if (currMsgVec != null)     // null means the micro service is not registered
                 currMsgVec.add(b);
+            notifyAll();
         }
     }
 
@@ -172,21 +175,26 @@ public class MessageBusImpl implements MessageBus {
     {
         Message msg = null;
         Vector<Message> mQueue = null;
+        boolean isInterrupted = false;
         try {
             mQueue = _messagesQueues.get(m);
         }
         catch (IllegalStateException e){
             return null;
         }
-//        try{
-//            while(_messagesQueues.get(m).isEmpty())
+        try{
+            while(_messagesQueues.get(m).isEmpty())
             {
-//                wait();
+                wait();
             }
-            msg = _messagesQueues.get(m).firstElement();
-            _messagesQueues.get(m).remove(msg);
-//        }
-//        catch (InterruptedException e){}
+            if (!isInterrupted) {
+                msg = _messagesQueues.get(m).firstElement();
+                _messagesQueues.get(m).remove(msg);
+            }
+        }
+        catch (InterruptedException e){
+            isInterrupted = true;
+        }
         notifyAll();
         return msg;
 	}
