@@ -22,7 +22,6 @@ public class SellingService extends MicroService{
 	@Override
 	protected void initialize() {
 		// TODO Implement this
-
 	}
 
 }
