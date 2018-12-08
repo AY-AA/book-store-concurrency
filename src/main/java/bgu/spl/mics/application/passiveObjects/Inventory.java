@@ -58,10 +58,14 @@ public class Inventory {
 	public OrderResult take (String book)
 	{
 		for (BookInventoryInfo currBook : _bookInventoryInfo) {
-			if (currBook.get_bookTitle().equals(book) && currBook.get_amountInInventory() != 0)
+			if (currBook.getBookTitle().equals(book))
 			{
-				currBook.takeBook();
-				return OrderResult.SUCCESSFULLY_TAKEN;
+				int copiesLeft = currBook.getAmountInInventory();
+				while(copiesLeft > 0)
+				{
+					if (currBook.takeBook(copiesLeft))
+						return OrderResult.SUCCESSFULLY_TAKEN;
+				}
 			}
 		}
 		return OrderResult.NOT_IN_STOCK;
@@ -75,7 +79,7 @@ public class Inventory {
 	 */
 	public int checkAvailabiltyAndGetPrice(String book) {
 		for (BookInventoryInfo currBook : _bookInventoryInfo) {
-			if (currBook.get_bookTitle().equals(book) && currBook.get_amountInInventory() != 0)
+			if (currBook.getBookTitle().equals(book) && currBook.getAmountInInventory() > 0)
 			{
 				return currBook.getPrice();
 			}
@@ -94,8 +98,8 @@ public class Inventory {
 	public void printInventoryToFile(String filename){
 		HashMap<String,Integer> inventoryToFile = new HashMap<>();
 		for (BookInventoryInfo currBook : _bookInventoryInfo) {
-			String name = currBook.get_bookTitle();
-			Integer amount = currBook.get_amountInInventory();
+			String name = currBook.getBookTitle();
+			Integer amount = currBook.getAmountInInventory();
 			inventoryToFile.put(name,amount);
 		}
 		FilePrinter.printToFile(inventoryToFile,filename);

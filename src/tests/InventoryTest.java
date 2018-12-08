@@ -50,7 +50,7 @@ public class InventoryTest {
     @Test
     public void testLoad() {
         //checking if the items were loaded to inventory
-        res = testInventory.take(bookInventoryInfos[0].get_bookTitle());
+        res = testInventory.take(bookInventoryInfos[0].getBookTitle());
         assertEquals(res,OrderResult.SUCCESSFULLY_TAKEN);
     }
 
@@ -61,8 +61,8 @@ public class InventoryTest {
     @Test
     public void testTake_lastBook() {
         //If amount of taken book decreasing (from one to zero) after action.
-        res = testInventory.take(bookInventoryInfos[2].get_bookTitle());
-        isAvailable = testInventory.checkAvailabiltyAndGetPrice(bookInventoryInfos[2].get_bookTitle());
+        res = testInventory.take(bookInventoryInfos[2].getBookTitle());
+        isAvailable = testInventory.checkAvailabiltyAndGetPrice(bookInventoryInfos[2].getBookTitle());
         assertEquals(-1, isAvailable);
     }
 
@@ -71,7 +71,7 @@ public class InventoryTest {
      */
     @Test
     public void testTake_successfullyTaken() {
-        res = testInventory.take(bookInventoryInfos[1].get_bookTitle());
+        res = testInventory.take(bookInventoryInfos[1].getBookTitle());
         assertEquals(res, OrderResult.SUCCESSFULLY_TAKEN);
     }
 
@@ -92,7 +92,7 @@ public class InventoryTest {
     @Test
     public void testCheckAvailabilityAndGetPrice_ExistingBook() {
         //checking if an existing book is available and received the same price
-        isAvailable = testInventory.checkAvailabiltyAndGetPrice(bookInventoryInfos[2].get_bookTitle());
+        isAvailable = testInventory.checkAvailabiltyAndGetPrice(bookInventoryInfos[2].getBookTitle());
         assertEquals(isAvailable,bookInventoryInfos[2].getPrice());
     }
 
@@ -147,7 +147,7 @@ public class InventoryTest {
         bookInventoryInfos[1] = new BookInventoryInfo("50ShadesOfGray",3,99);
         bookInventoryInfos[2] = new BookInventoryInfo("midSummerNightDreams",1,105);
         for (int i = 0; i < bookInventoryInfos.length; i++) {
-            testInventoryMap.put(bookInventoryInfos[i].get_bookTitle(),bookInventoryInfos[i].get_amountInInventory());
+            testInventoryMap.put(bookInventoryInfos[i].getBookTitle(),bookInventoryInfos[i].getAmountInInventory());
         }
         return bookInventoryInfos;
     }
