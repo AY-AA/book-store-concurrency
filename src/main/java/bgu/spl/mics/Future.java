@@ -15,14 +15,13 @@ import java.util.concurrent.TimeUnit;
 public class Future<T> extends ReaderWriter<T> {
 
 	private T _result;
-	private Object _resultLocker;
+	private final Object _resultLocker = new Object();
 
 	/**
 	 * This should be the the only public constructor in this class.
 	 */
 	public Future() {
-		_result= null;
-		_resultLocker = new Object();
+		_result = null;
 	}
 
 	/**
@@ -37,14 +36,12 @@ public class Future<T> extends ReaderWriter<T> {
 		beforeRead();
 		synchronized (_resultLocker){
 			while (!isDone()) {
-//                _activeReaders --;
 				try {
 					wait();
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
 			}
-//            _activeReaders ++;
 			_resultLocker.notifyAll();
 		}
 		afterRead();
@@ -87,11 +84,8 @@ public class Future<T> extends ReaderWriter<T> {
 	public T get(long timeout, TimeUnit unit) {
 		beforeRead();
 		synchronized (_resultLocker){
-			//_activeReaders --;
-
 			if (_result != null) {
 				_resultLocker.notifyAll();
-				//            _activeReaders ++;
 				return _result;
 			}
 			long timeToSleep  = TimeUnit.MILLISECONDS.convert(timeout, unit);
@@ -100,7 +94,6 @@ public class Future<T> extends ReaderWriter<T> {
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
 			}
-			//_activeReaders ++;
 			_resultLocker.notifyAll();
 		}
 		afterRead();

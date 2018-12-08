@@ -2,6 +2,7 @@ package bgu.spl.mics;
 
 import java.util.HashMap;
 import java.util.Vector;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * The {@link MessageBusImpl class is the implementation of the MessageBus interface.
@@ -19,9 +20,13 @@ public class MessageBusImpl implements MessageBus {
     // whenever a micro service's message vector is null, it means it has been unregistered
     private HashMap<MicroService, Vector<Message>> _messagesQueues;
 
-    // this hash map represents messages as keys
-    // and the value of each message is the array list which holds all micro services subscribed to a certain message
-    private HashMap<Object,Vector<MicroService> >_messagesSubscriptions;
+    // this hash map represents events as keys
+    // and the value of each event is the array list which holds all micro services subscribed to a certain event
+    private final ConcurrentHashMap<Class,Vector<MicroService> > _eventSubscriptions;
+
+    // this hash map represents broadcasts as keys
+    // and the value of each broadcast is the array list which holds all micro services subscribed to a certain broadcast
+    private final ConcurrentHashMap<Class,Vector<MicroService> >_broadcastSubscriptions;
 
     // this hash map represents messages as keys
     // and the value of each message is the future object represents the result might become out of the event
@@ -29,7 +34,7 @@ public class MessageBusImpl implements MessageBus {
 
     // this hash map represents messages as keys
     // and the value of each message is the last index of micro service that got the message
-    private HashMap<Object,Integer> _roundRobinNum;
+    private HashMap<Class,Integer> _roundRobinNum;
 
     public static MessageBusImpl getInstance()
     {
@@ -39,7 +44,8 @@ public class MessageBusImpl implements MessageBus {
     private MessageBusImpl()
     {
         _messagesQueues = new HashMap<>();
-        _messagesSubscriptions = new HashMap<>();
+        _eventSubscriptions = new ConcurrentHashMap<>();
+        _broadcastSubscriptions = new ConcurrentHashMap<>();
         _messagesAndFutures = new HashMap<>();
         _roundRobinNum = new HashMap<>();
     }
@@ -47,35 +53,35 @@ public class MessageBusImpl implements MessageBus {
     @Override
     public <T> void subscribeEvent(Class<? extends Event<T>> type, MicroService m)
     {
-        // TODO: subscribers must subscribe one by one!
-
-        // if micro service is not registered, return
-        if (!_messagesQueues.containsKey(m) || _messagesQueues.get(m) == null)
-            return;
-        // if event does not exist, add it
-        if (!_messagesSubscriptions.containsKey(type))
-        {
-            _roundRobinNum.put(type,0);
-            _messagesSubscriptions.put(type,new Vector<>());
+        synchronized (_eventSubscriptions) {
+            // if micro service is not registered, return
+            if (!_messagesQueues.containsKey(m) || _messagesQueues.get(m) == null)
+                return;
+            // if event does not exist, add it
+            if (!_eventSubscriptions.containsKey(type)) {
+                _eventSubscriptions.put(type, new Vector<>());
+                _roundRobinNum.put(type, 0);
+            }
         }
         // subscribe m to the event
-        _messagesSubscriptions.get(type).add(m);
+        _eventSubscriptions.get(type).add(m);
     }
 
     @Override
     public void subscribeBroadcast(Class<? extends Broadcast> type, MicroService m)
     {
-        // if micro service is not registered, return
-        if (!_messagesQueues.containsKey(m) || _messagesQueues.get(m) == null)
-            return;
-        // if broadcast does not exist, add it
-        if (!_messagesSubscriptions.containsKey(type))
-        {
-            _roundRobinNum.put(type,0);
-            _messagesSubscriptions.put(type,new Vector<>());
+        synchronized(_broadcastSubscriptions) {
+            // if micro service is not registered, return
+            if (!_messagesQueues.containsKey(m) || _messagesQueues.get(m) == null)
+                return;
+            // if broadcast does not exist, add it
+            if (!_broadcastSubscriptions.containsKey(type)) {
+                _roundRobinNum.put(type, 0);
+                _broadcastSubscriptions.put(type, new Vector<>());
+            }
         }
         // subscribe m to the broadcast
-        _messagesSubscriptions.get(type).add(m);
+        _broadcastSubscriptions.get(type).add(m);
 
     }
 
@@ -91,20 +97,21 @@ public class MessageBusImpl implements MessageBus {
     public void sendBroadcast(Broadcast b)
     {
         // at first we need to find all micro services subscribed to b
-        Vector<MicroService> microServices = _messagesSubscriptions.get(b.getClass());
+        Vector<MicroService> microServices = _broadcastSubscriptions.get(b.getClass());
+
+        if (microServices == null)
+            return;
 
         // for each micro service subscribed to b we insert the message b into its list
         for (MicroService m : microServices)
         {
             Vector<Message> currMsgVec = _messagesQueues.get(m);
-
             if (currMsgVec == null)     // null means the micro service is not registered
                 continue;
             synchronized (currMsgVec) {
                 currMsgVec.add(b);
                 currMsgVec.notifyAll();
             }
-
         }
     }
 
@@ -118,6 +125,9 @@ public class MessageBusImpl implements MessageBus {
 
         // event addition
         Vector<Message> mQueue = _messagesQueues.get(m);
+        if (mQueue == null)
+            return null;
+
         Future<T> future = new Future<>();
         synchronized (mQueue) {
             mQueue.add(e);
@@ -135,7 +145,7 @@ public class MessageBusImpl implements MessageBus {
      * @return
      */
     private <T> MicroService roundRobinAlgo(Event<T> e) {
-        Vector<MicroService> subscribedToE = _messagesSubscriptions.get(e.getClass());
+        Vector<MicroService> subscribedToE = _eventSubscriptions.get(e.getClass());
 
         // if no one is registered to this event or micro service has been unregistered
         if (subscribedToE == null || subscribedToE.isEmpty())
@@ -166,15 +176,22 @@ public class MessageBusImpl implements MessageBus {
     {
         if (!_messagesQueues.containsKey(m))
             return;
-        // remove m from _messagesSubscriptions
-        for (Vector<MicroService> currVector : _messagesSubscriptions.values())
+        // remove m from _eventSubscriptions && _broadcastSubscriptions
+        for (Vector<MicroService> currVector : _eventSubscriptions.values())
         {
             if (currVector.contains(m))
             {
                 currVector.remove(m);
             }
         }
-        _messagesQueues.put(m,null);
+        for (Vector<MicroService> currVector : _broadcastSubscriptions.values())
+        {
+            if (currVector.contains(m))
+            {
+                currVector.remove(m);
+            }
+        }
+        _messagesQueues.remove(m);
     }
 
     @Override
