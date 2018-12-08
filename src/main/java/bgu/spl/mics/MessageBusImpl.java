@@ -2,6 +2,7 @@ package bgu.spl.mics;
 
 import java.util.HashMap;
 import java.util.Vector;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * The {@link MessageBusImpl class is the implementation of the MessageBus interface.
@@ -21,7 +22,7 @@ public class MessageBusImpl implements MessageBus {
 
     // this hash map represents messages as keys
     // and the value of each message is the array list which holds all micro services subscribed to a certain message
-    private HashMap<Object,Vector<MicroService> >_messagesSubscriptions;
+    private HashMap<Class,Vector<MicroService> >_messagesSubscriptions;
 
     // this hash map represents messages as keys
     // and the value of each message is the future object represents the result might become out of the event
@@ -29,7 +30,7 @@ public class MessageBusImpl implements MessageBus {
 
     // this hash map represents messages as keys
     // and the value of each message is the last index of micro service that got the message
-    private HashMap<Object,Integer> _roundRobinNum;
+    private HashMap<Class,Integer> _roundRobinNum;
 
     public static MessageBusImpl getInstance()
     {
@@ -71,8 +72,8 @@ public class MessageBusImpl implements MessageBus {
         // if broadcast does not exist, add it
         if (!_messagesSubscriptions.containsKey(type))
         {
-            _roundRobinNum.put(type,0);
             _messagesSubscriptions.put(type,new Vector<>());
+            _roundRobinNum.put(type,0);
         }
         // subscribe m to the broadcast
         _messagesSubscriptions.get(type).add(m);
@@ -104,7 +105,6 @@ public class MessageBusImpl implements MessageBus {
                 currMsgVec.add(b);
                 currMsgVec.notifyAll();
             }
-
         }
     }
 
@@ -119,6 +119,8 @@ public class MessageBusImpl implements MessageBus {
         // event addition
         Vector<Message> mQueue = _messagesQueues.get(m);
         Future<T> future = new Future<>();
+        if(mQueue == null)
+            return null;
         synchronized (mQueue) {
             mQueue.add(e);
             _messagesAndFutures.put(e,future);
@@ -174,7 +176,7 @@ public class MessageBusImpl implements MessageBus {
                 currVector.remove(m);
             }
         }
-        _messagesQueues.put(m,null);
+        _messagesQueues.remove(m);
     }
 
     @Override
