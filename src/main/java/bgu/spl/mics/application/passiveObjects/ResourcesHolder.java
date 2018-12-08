@@ -27,6 +27,7 @@ public class ResourcesHolder {
 		return ResourcesHolderHolder._resourceHolder;
 	}
 
+	// A collection of delivery vehicles
 	private Collection<DeliveryVehicle> _deliveryVehicles;
 
 	private ResourcesHolder(){
@@ -61,7 +62,8 @@ public class ResourcesHolder {
      * @param vehicles	Array of {@link DeliveryVehicle} instances to store.
      */
 	public void load(DeliveryVehicle[] vehicles) {
-		//TODO: Implement this
+		for (DeliveryVehicle vehicle : vehicles)
+		    _deliveryVehicles.add(vehicle);
 	}
 
 }
