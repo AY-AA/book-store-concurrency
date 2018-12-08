@@ -31,17 +31,18 @@ public class ExampleMessageSenderService extends MicroService {
         } else {
             Future<String> futureObject = (Future<String>)sendEvent(new ExampleEvent(getName()));
             if (futureObject != null) {
-            	String resolved = futureObject.get(100, TimeUnit.MILLISECONDS);
-            	if (resolved != null) {
-            		System.out.println("Completed processing the event, its result is \"" + resolved + "\" - success");
-            	}
-            	else {
-                	System.out.println("Time has elapsed, no services has resolved the event - terminating");
+                String resolved = futureObject.get(100, TimeUnit.MILLISECONDS);
+                if (resolved != null) {
+                    System.out.println("Completed processing the event, its result is \"" + resolved + "\" - success");
+                }
+                else {
+                    System.out.println("Time has elapsed, no services has resolved the event - terminating");
                 }
             }
             else {
-            	System.out.println("No Micro-Service has registered to handle ExampleEvent events! The event cannot be processed");
+                System.out.println("No Micro-Service has registered to handle ExampleEvent events! The event cannot be processed");
             }
+            terminate();
         }
     }
 
