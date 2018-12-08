@@ -21,7 +21,7 @@ public class MessageBusImpl implements MessageBus {
 
     // this hash map represents messages as keys
     // and the value of each message is the array list which holds all micro services subscribed to a certain message
-    private HashMap<Object,Vector<MicroService> >_messagesSubscriptions;
+    private HashMap<Class,Vector<MicroService> >_messagesSubscriptions;
 
     // this hash map represents messages as keys
     // and the value of each message is the future object represents the result might become out of the event
@@ -29,7 +29,7 @@ public class MessageBusImpl implements MessageBus {
 
     // this hash map represents messages as keys
     // and the value of each message is the last index of micro service that got the message
-    private HashMap<Object,Integer> _roundRobinNum;
+    private HashMap<Class,Integer> _roundRobinNum;
 
     public static MessageBusImpl getInstance()
     {
