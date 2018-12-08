@@ -4,7 +4,6 @@ package bgu.spl.mics.application.passiveObjects;
 import Accessories.*;
 
 import java.util.HashMap;
-import java.util.Vector;
 
 /**
  * Passive data-object representing the store inventory.
@@ -21,10 +20,10 @@ public class Inventory {
 	private static class InventoryHolder {
 		private static Inventory _inventory = new Inventory();
 	}
-	private Vector<BookInventoryInfo> _bookInventoryInfo;
+	private HashMap<String,BookInventoryInfo> _bookInventoryInfo;
 
 	private Inventory(){
-		_bookInventoryInfo = new Vector<>();
+		_bookInventoryInfo = new HashMap<>();
 	}
 
 	/**
@@ -43,7 +42,7 @@ public class Inventory {
 	 */
 	public void load (BookInventoryInfo[ ] inventory ) {
 		for (BookInventoryInfo book : inventory) {
-			_bookInventoryInfo.add(book);
+			_bookInventoryInfo.put(book.getBookTitle(),book);
 		}
 	}
 
@@ -57,15 +56,14 @@ public class Inventory {
 	 */
 	public OrderResult take (String book)
 	{
-		for (BookInventoryInfo currBook : _bookInventoryInfo) {
-			if (currBook.getBookTitle().equals(book))
+		BookInventoryInfo bookObject = _bookInventoryInfo.get(book);
+		if (bookObject != null) 	//book exists
+		{
+			int copiesLeft = bookObject.getAmountInInventory();
+			while(copiesLeft > 0)
 			{
-				int copiesLeft = currBook.getAmountInInventory();
-				while(copiesLeft > 0)
-				{
-					if (currBook.takeBook(copiesLeft))
-						return OrderResult.SUCCESSFULLY_TAKEN;
-				}
+				if (bookObject.takeBook(copiesLeft))
+					return OrderResult.SUCCESSFULLY_TAKEN;
 			}
 		}
 		return OrderResult.NOT_IN_STOCK;
@@ -78,12 +76,10 @@ public class Inventory {
 	 * @return the price of the book if it is available, -1 otherwise.
 	 */
 	public int checkAvailabiltyAndGetPrice(String book) {
-		for (BookInventoryInfo currBook : _bookInventoryInfo) {
-			if (currBook.getBookTitle().equals(book) && currBook.getAmountInInventory() > 0)
-			{
-				return currBook.getPrice();
-			}
-		}
+		BookInventoryInfo bookObject = _bookInventoryInfo.get(book);
+		if (bookObject != null && bookObject.getAmountInInventory() > 0)
+			return bookObject.getPrice();
+
 		return -1;
 	}
 
@@ -97,7 +93,7 @@ public class Inventory {
 	 */
 	public void printInventoryToFile(String filename){
 		HashMap<String,Integer> inventoryToFile = new HashMap<>();
-		for (BookInventoryInfo currBook : _bookInventoryInfo) {
+		for (BookInventoryInfo currBook : _bookInventoryInfo.values()) {
 			String name = currBook.getBookTitle();
 			Integer amount = currBook.getAmountInInventory();
 			inventoryToFile.put(name,amount);

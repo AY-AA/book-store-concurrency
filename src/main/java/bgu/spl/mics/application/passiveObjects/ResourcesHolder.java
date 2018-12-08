@@ -2,6 +2,9 @@ package bgu.spl.mics.application.passiveObjects;
 
 import bgu.spl.mics.Future;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 /**
  * Passive object representing the resource manager.
  * You must not alter any of the given public methods of this class.
@@ -13,18 +16,22 @@ import bgu.spl.mics.Future;
  */
 public class ResourcesHolder {
 
-	private static ResourcesHolder _resourceHolder;
+	private static class ResourcesHolderHolder {
+		private static ResourcesHolder _resourceHolder = new ResourcesHolder();
+	}
 
 	/**
      * Retrieves the single instance of this class.
      */
 	public static ResourcesHolder getInstance() {
-		if (_resourceHolder == null)
-		    _resourceHolder = new ResourcesHolder();
-		return _resourceHolder;
+		return ResourcesHolderHolder._resourceHolder;
 	}
 
-	private ResourcesHolder(){}
+	private Collection<DeliveryVehicle> _deliveryVehicles;
+
+	private ResourcesHolder(){
+		_deliveryVehicles = new ArrayList<>();
+	}
 
 	/**
      * Tries to acquire a vehicle and gives a future object which will
@@ -34,7 +41,7 @@ public class ResourcesHolder {
      * 			{@link DeliveryVehicle} when completed.   
      */
 	public Future<DeliveryVehicle> acquireVehicle() {
-		//TODO: Implement this
+		Future<DeliveryVehicle> future;
 		return null;
 	}
 	

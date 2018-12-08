@@ -5,6 +5,7 @@ import Accessories.FilePrinter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 /**
  * Passive object representing the store finance management. 
@@ -17,16 +18,17 @@ import java.util.List;
  */
 public class MoneyRegister {
 
-	private static MoneyRegister _moneyRegister;
+	private static class MoneyRegisterHolder {
+		private static MoneyRegister _moneyHolder = new MoneyRegister();
+	}
+
 	private List<OrderReceipt> _ordersList;
 
 	/**
      * Retrieves the single instance of this class.
      */
 	public static MoneyRegister getInstance() {
-		if (_moneyRegister == null)
-            _moneyRegister = new MoneyRegister();
-		return _moneyRegister;
+		return MoneyRegisterHolder._moneyHolder;
 	}
 
 	private MoneyRegister()
@@ -52,26 +54,40 @@ public class MoneyRegister {
 		    total += order.getPrice();
 		return total;
 	}
-	
+
+	/**
+	 * returns all the order receipts in the system.
+	 * @return
+	 */
+	public List<OrderReceipt> getOrderReceipts()
+	{
+		return _ordersList;
+	}
+
+	/**
+	 * Prints to a file named @filename a serialized object List<OrderReceipt> which holds all the order receipts
+	 * currently in the MoneyRegister
+	 * This method is called by the main method in order to generate the output..
+	 */
+	public void printOrderReceipts(String filename) {
+		FilePrinter.printToFile(_ordersList,filename);
+	}
+
 	/**
      * Charges the credit card of the customer a certain amount of money.
      * <p>
      * @param amount 	amount to charge
      */
 	public void chargeCreditCard(Customer c, int amount) {
-	    int amountLeft = c.getAvailableCreditAmount();
-	    // TODO : amount left check is here ?
-//	    if (amountLeft < amount)
-//	        return;
-	    c.charge(amount);
+		synchronized (c)
+		{
+			int amountLeft = c.getAvailableCreditAmount();
+			while (amountLeft >= amount && !c.charge(amount,amount))
+			{
+				amountLeft = c.getAvailableCreditAmount();
+			}
+			c.notifyAll();
+		}
 	}
-	
-	/**
-     * Prints to a file named @filename a serialized object List<OrderReceipt> which holds all the order receipts 
-     * currently in the MoneyRegister
-     * This method is called by the main method in order to generate the output.. 
-     */
-	public void printOrderReceipts(String filename) {
-        FilePrinter.printToFile(_ordersList,filename);
-	}
+
 }

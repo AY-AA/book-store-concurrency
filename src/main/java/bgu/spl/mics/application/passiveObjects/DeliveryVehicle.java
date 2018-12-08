@@ -12,7 +12,7 @@ public class DeliveryVehicle {
 
 
     private final int _licence;
-    private final int _speed;
+    private final int _speed; 	// number of milliseconds needed for 1KM
 
     /**
      * Constructor.   
@@ -46,15 +46,12 @@ public class DeliveryVehicle {
      */
 	public void deliver(String address, int distance) {
 		// calculation of time needed to arrive, we like physics
-        long time = distance/_speed;
+        long timeToSleep = distance/_speed;
 
-        // parse time to milliseconds
-        long timeToSleep = TimeUnit.HOURS.convert(time, TimeUnit.MILLISECONDS);
-		//TODO : check it
         try {   // thread goes to sleep -- simulates a delivery
             Thread.sleep(timeToSleep);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            Thread.currentThread().interrupt();
         }
 
 
