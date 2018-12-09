@@ -1,6 +1,7 @@
 package bgu.spl.mics.application;
 
 
+import Accessories.FileToString;
 import bgu.spl.mics.application.passiveObjects.BookInventoryInfo;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -12,8 +13,10 @@ import org.json.JSONObject;
  */
 public class BookStoreRunner {
     public BookStoreRunner(String path) {
-        parseJSON(path);
+        String jsonString = FileToString.readFile(path);
+        parseJSON(jsonString);
     }
+
 
     private void parseJSON(String path) {
         BookInventoryInfo[] books = null;
@@ -37,22 +40,18 @@ public class BookStoreRunner {
             }
         }
         catch (JSONException e){
-            System.out.println("catch");
+            System.out.println(e.getMessage());
         }
-//        for (int i = 0; i < books.length ; i++) {
-//            System.out.println(books[i].getBookTitle() + " amount : " + books[i].getAmountInInventory() + " price : " + books[i].getPrice());
-//        }
+        for (int i = 0; i < books.length ; i++) {
+            System.out.println(books[i].getBookTitle() + " amount : " + books[i].getAmountInInventory() + " price : " + books[i].getPrice());
+        }
     }
-
-    private void printFiles()
-    {
-
-    }
-
+    
     public static void main(String[] args) {
 
+        String inputFile = System.getProperty("user.dir")+"/src/input.json";
 
-        BookStoreRunner bookStore = new BookStoreRunner("src/input.json");
+        BookStoreRunner bookStore = new BookStoreRunner(inputFile);
 
     }
 }
