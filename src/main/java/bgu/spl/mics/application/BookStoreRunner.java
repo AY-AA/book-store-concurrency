@@ -24,14 +24,14 @@ public class BookStoreRunner {
 
     private void parseJSON(String jsonString) {
 
-        parseBooks(jsonString);
-        parseResources(jsonString);
+        JSONObject jsonObject = new JSONObject(jsonString);
+        parseBooks(jsonObject);
+        parseResources(jsonObject);
 
     }
 
-    private void parseBooks(String jsonString) {
+    private void parseBooks(JSONObject jsonObject) {
 
-        JSONObject jsonObject = new JSONObject(jsonString);
         String[] types = {"bookTitle", "amount", "price"};
 
         ArrayList<Vector<String>> booksStrings = JSONParser.ParseJSON(jsonObject,"initialInventory",types);
@@ -49,9 +49,8 @@ public class BookStoreRunner {
 
     }
 
-    private void parseResources(String jsonString) {
+    private void parseResources(JSONObject jsonObject) {
 
-        JSONObject jsonObject = new JSONObject(jsonString);
         JSONArray jsonArray = jsonObject.optJSONArray("initialResources");
         JSONObject resourcesJSON = jsonArray.optJSONObject(0);
 
