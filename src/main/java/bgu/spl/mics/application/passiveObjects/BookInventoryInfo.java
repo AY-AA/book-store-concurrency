@@ -23,7 +23,8 @@ public class BookInventoryInfo {
      * <p>
      * @return The title of this book.   
      */
-	public String get_bookTitle() {
+	public String get_bookTitle()
+	{
 		return _bookTitle;
 	}
 
@@ -32,8 +33,9 @@ public class BookInventoryInfo {
      * <p>
      * @return amount of available books.      
      */
-	public int get_amountInInventory() {
-		return _amountInInventory;
+	public int get_amountInInventory()
+	{
+			return _amountInInventory;
 	}
 
 	/**
@@ -41,7 +43,8 @@ public class BookInventoryInfo {
      * <p>
      * @return the price of the book.
      */
-	public int getPrice() {
+	public int getPrice()
+	{
 		return _price;
 	}
 
