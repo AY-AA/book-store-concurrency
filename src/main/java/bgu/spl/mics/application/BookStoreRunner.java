@@ -4,6 +4,8 @@ package bgu.spl.mics.application;
 import Accessories.FileToString;
 import Accessories.JSONParser;
 import bgu.spl.mics.application.passiveObjects.BookInventoryInfo;
+import bgu.spl.mics.application.passiveObjects.DeliveryVehicle;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -23,19 +25,19 @@ public class BookStoreRunner {
     private void parseJSON(String jsonString) {
 
         parseBooks(jsonString);
-
+        parseResources(jsonString);
 
     }
 
     private void parseBooks(String jsonString) {
 
         JSONObject jsonObject = new JSONObject(jsonString);
+        String[] types = {"bookTitle", "amount", "price"};
 
-        ArrayList<Vector<String>> booksStrings = JSONParser.ParseJSON(jsonObject,"initialInventory");
+        ArrayList<Vector<String>> booksStrings = JSONParser.ParseJSON(jsonObject,"initialInventory",types);
 
-        BookInventoryInfo[] books = null;
+        BookInventoryInfo[] books = new BookInventoryInfo[booksStrings.size()];
         int index = 0;
-        books = new BookInventoryInfo[booksStrings.size()];
 
         for (Vector<String> currVector : booksStrings) {
             String bookName = currVector.elementAt(0);
@@ -45,9 +47,32 @@ public class BookStoreRunner {
             index ++;
         }
 
-        
     }
-    
+
+    private void parseResources(String jsonString) {
+
+        JSONObject jsonObject = new JSONObject(jsonString);
+        JSONArray jsonArray = jsonObject.optJSONArray("initialResources");
+        JSONObject resourcesJSON = jsonArray.optJSONObject(0);
+
+        String[] types = {"license", "speed"};
+
+        ArrayList<Vector<String>> vehiclesStrings = JSONParser.ParseJSON(resourcesJSON,"vehicles",types);
+
+        DeliveryVehicle[] vehicles = new DeliveryVehicle[vehiclesStrings.size()];
+        int index = 0;
+
+        for (Vector<String> currVector : vehiclesStrings) {
+            int license = Integer.parseInt(currVector.elementAt(0));
+            int speed = Integer.parseInt(currVector.elementAt(1));
+            vehicles[index] = new DeliveryVehicle(license,speed);
+            index ++;
+        }
+
+    }
+
+
+
     public static void main(String[] args) {
 
         String inputFile = System.getProperty("user.dir")+"/src/input.json";

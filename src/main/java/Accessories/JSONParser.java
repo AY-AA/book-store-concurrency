@@ -9,7 +9,7 @@ import java.util.Vector;
 
 public class JSONParser {
 
-    public static ArrayList<Vector<String>> ParseJSON(JSONObject jsonObject, String parse) {
+    public static ArrayList<Vector<String>> ParseJSON(JSONObject jsonObject, String parse, String[] types) {
         ArrayList<Vector<String>> ans = new ArrayList<>();
         try {
             // find the required array
@@ -19,13 +19,8 @@ public class JSONParser {
                 JSONObject currObject = jsonArray.getJSONObject(i);
                 Vector<String> currVector = new Vector<>();
 
-                String bookName = currObject.optString("bookTitle");
-                String bookAmount = currObject.optString("amount");
-                String bookPrice = currObject.optString("price");
-
-                currVector.add(bookName);
-                currVector.add(bookAmount);
-                currVector.add(bookPrice);
+                for (int j = 0 ; j < types.length ; j++)
+                    currVector.add(currObject.optString(types[j]));
 
                 ans.add(currVector);
             }
