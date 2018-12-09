@@ -109,9 +109,10 @@ public class MessageBusImpl implements MessageBus {
             LinkedBlockingQueue<Message> currMsgVec = _messagesQueues.get(m);
             if (currMsgVec == null)     // null means the micro service is not registered
                 continue;
-            synchronized (currMsgVec) {
-                currMsgVec.add(b);
-                currMsgVec.notifyAll();
+            try {
+                currMsgVec.put(b);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
     }
