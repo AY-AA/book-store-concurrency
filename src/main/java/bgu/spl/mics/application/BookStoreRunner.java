@@ -11,15 +11,15 @@ import org.json.JSONObject;
  * In the end, you should output serialized objects.
  */
 public class BookStoreRunner {
-    public BookStoreRunner(String s) {
-        parseJSON(s);
+    public BookStoreRunner(String path) {
+        parseJSON(path);
     }
 
-    private void parseJSON(String s) {
+    private void parseJSON(String path) {
         BookInventoryInfo[] books = null;
         try{
             // the main JSON object
-            JSONObject jsonObject = new JSONObject(s);
+            JSONObject jsonObject = new JSONObject(path);
 
             //inventory creation
             JSONArray inventoryArray = jsonObject.optJSONArray("initialInventory");
@@ -52,7 +52,7 @@ public class BookStoreRunner {
     public static void main(String[] args) {
 
 
-        BookStoreRunner bookStore = new BookStoreRunner("input.json");
+        BookStoreRunner bookStore = new BookStoreRunner("src/input.json");
 
     }
 }
