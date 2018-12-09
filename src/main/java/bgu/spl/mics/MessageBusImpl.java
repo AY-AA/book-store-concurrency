@@ -130,15 +130,12 @@ public class MessageBusImpl implements MessageBus {
             return null;
 
         Future<T> future = new Future<>();
-//        synchronized (mQueue) {
-            try {
-                mQueue.put(e);
-            } catch (InterruptedException e1) {
-                e1.printStackTrace();
-            }
-            _messagesAndFutures.put(e,future);
-//            mQueue.notifyAll();
-//        }
+        try {
+            mQueue.put(e);
+        } catch (InterruptedException e1) {
+            e1.printStackTrace();
+        }
+        _messagesAndFutures.put(e,future);
         return future;
     }
 
@@ -210,23 +207,12 @@ public class MessageBusImpl implements MessageBus {
         }
         if (mQueue == null)
             return null;
-//        synchronized (mQueue) {
-            try {
-//                while (_messagesQueues.get(m).isEmpty()) {
-//                    mQueue.wait();
-//                }
-//                msg = _messagesQueues.get(m).firstElement();
-//                _messagesQueues.get(m).remove(msg);
-                msg = _messagesQueues.get(m).take();
-            } catch (InterruptedException e){
-                Thread.currentThread().interrupt();
-                return null;
-            }
-//            mQueue.notifyAll();
-//        }
+        try {
+            msg = _messagesQueues.get(m).take();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return null;
+        }
         return msg;
     }
-
-
-
-}
+}                        }
