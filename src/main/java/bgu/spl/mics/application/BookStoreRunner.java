@@ -25,12 +25,12 @@ public class BookStoreRunner {
     private void parseJSON(String jsonString) {
 
         JSONObject jsonObject = new JSONObject(jsonString);
-        parseBooks(jsonObject);
-        parseResources(jsonObject);
+        BookInventoryInfo[] books = parseBooks(jsonObject);
+        DeliveryVehicle[] vehicles = parseResources(jsonObject);
 
     }
 
-    private void parseBooks(JSONObject jsonObject) {
+    private BookInventoryInfo[] parseBooks(JSONObject jsonObject) {
 
         String[] types = {"bookTitle", "amount", "price"};
 
@@ -46,10 +46,11 @@ public class BookStoreRunner {
             books[index] = new BookInventoryInfo(bookName,bookAmount,bookPrice);
             index ++;
         }
+        return books;
 
     }
 
-    private void parseResources(JSONObject jsonObject) {
+    private DeliveryVehicle[] parseResources(JSONObject jsonObject) {
 
         JSONArray jsonArray = jsonObject.optJSONArray("initialResources");
         JSONObject resourcesJSON = jsonArray.optJSONObject(0);
@@ -67,6 +68,7 @@ public class BookStoreRunner {
             vehicles[index] = new DeliveryVehicle(license,speed);
             index ++;
         }
+        return vehicles;
 
     }
 
