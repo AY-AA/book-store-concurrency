@@ -47,12 +47,7 @@ public class BookStoreRunner {
 
         
     }
-
-    private void printFiles()
-    {
-
-    }
-
+    
     public static void main(String[] args) {
 
         String inputFile = System.getProperty("user.dir")+"/src/input.json";
