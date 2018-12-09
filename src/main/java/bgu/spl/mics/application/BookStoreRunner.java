@@ -2,10 +2,12 @@ package bgu.spl.mics.application;
 
 
 import Accessories.FileToString;
+import Accessories.JSONParser;
 import bgu.spl.mics.application.passiveObjects.BookInventoryInfo;
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Vector;
 
 /** This is the Main class of the application. You should parse the input file,
  * create the different instances of the objects, and run the system.
@@ -18,33 +20,32 @@ public class BookStoreRunner {
     }
 
 
-    private void parseJSON(String path) {
+    private void parseJSON(String jsonString) {
+
+        parseBooks(jsonString);
+
+
+    }
+
+    private void parseBooks(String jsonString) {
+
+        JSONObject jsonObject = new JSONObject(jsonString);
+
+        ArrayList<Vector<String>> booksStrings = JSONParser.ParseJSON(jsonObject,"initialInventory");
+
         BookInventoryInfo[] books = null;
-        try{
-            // the main JSON object
-            JSONObject jsonObject = new JSONObject(path);
+        int index = 0;
+        books = new BookInventoryInfo[booksStrings.size()];
 
-            //inventory creation
-            JSONArray inventoryArray = jsonObject.optJSONArray("initialInventory");
-            books = new BookInventoryInfo[inventoryArray.length()];
-
-            for (int i = 0; i < inventoryArray.length(); i++) {
-                JSONObject currBook = inventoryArray.getJSONObject(i);
-
-                String bookName = currBook.optString("bookTitle");
-                int bookAmount = Integer.parseInt(currBook.optString("amount"));
-                int bookPrice = Integer.parseInt(currBook.optString("price"));
-
-                BookInventoryInfo book = new BookInventoryInfo(bookName,bookAmount,bookPrice);
-                books[i] = book;
-            }
+        for (Vector<String> currVector : booksStrings) {
+            String bookName = currVector.elementAt(0);
+            int bookAmount = Integer.parseInt(currVector.elementAt(1));
+            int bookPrice = Integer.parseInt(currVector.elementAt(2));
+            books[index] = new BookInventoryInfo(bookName,bookAmount,bookPrice);
+            index ++;
         }
-        catch (JSONException e){
-            System.out.println(e.getMessage());
-        }
-        for (int i = 0; i < books.length ; i++) {
-            System.out.println(books[i].getBookTitle() + " amount : " + books[i].getAmountInInventory() + " price : " + books[i].getPrice());
-        }
+
+        
     }
 
     private void printFiles()
