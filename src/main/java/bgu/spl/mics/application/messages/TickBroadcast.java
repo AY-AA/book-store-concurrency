@@ -4,5 +4,13 @@ import bgu.spl.mics.Broadcast;
 
 public class TickBroadcast implements Broadcast {
 
-    private int currenTick;
+    private final int currenTick;
+
+    public TickBroadcast(int currenTick) {
+        this.currenTick = currenTick;
+    }
+
+    public int getCurrenTick() {
+        return currenTick;
+    }
 }

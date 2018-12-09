@@ -3,6 +3,7 @@ package bgu.spl.mics;
 import java.util.HashMap;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * The {@link MessageBusImpl class is the implementation of the MessageBus interface.
@@ -18,7 +19,7 @@ public class MessageBusImpl implements MessageBus {
 
     // this hash map represents each micro service and its queue
     // whenever a micro service's message vector is null, it means it has been unregistered
-    private HashMap<MicroService, Vector<Message>> _messagesQueues;
+    private ConcurrentHashMap<MicroService, LinkedBlockingQueue<Message>> _messagesQueues;
 
     // this hash map represents events as keys
     // and the value of each event is the array list which holds all micro services subscribed to a certain event
@@ -43,7 +44,7 @@ public class MessageBusImpl implements MessageBus {
 
     private MessageBusImpl()
     {
-        _messagesQueues = new HashMap<>();
+        _messagesQueues = new ConcurrentHashMap<>();
         _eventSubscriptions = new ConcurrentHashMap<>();
         _broadcastSubscriptions = new ConcurrentHashMap<>();
         _messagesAndFutures = new HashMap<>();
@@ -105,7 +106,7 @@ public class MessageBusImpl implements MessageBus {
         // for each micro service subscribed to b we insert the message b into its list
         for (MicroService m : microServices)
         {
-            Vector<Message> currMsgVec = _messagesQueues.get(m);
+            LinkedBlockingQueue<Message> currMsgVec = _messagesQueues.get(m);
             if (currMsgVec == null)     // null means the micro service is not registered
                 continue;
             synchronized (currMsgVec) {
@@ -124,16 +125,20 @@ public class MessageBusImpl implements MessageBus {
             return null;
 
         // event addition
-        Vector<Message> mQueue = _messagesQueues.get(m);
+        LinkedBlockingQueue<Message> mQueue = _messagesQueues.get(m);
         if (mQueue == null)
             return null;
 
         Future<T> future = new Future<>();
-        synchronized (mQueue) {
-            mQueue.add(e);
+//        synchronized (mQueue) {
+            try {
+                mQueue.put(e);
+            } catch (InterruptedException e1) {
+                e1.printStackTrace();
+            }
             _messagesAndFutures.put(e,future);
-            mQueue.notifyAll();
-        }
+//            mQueue.notifyAll();
+//        }
         return future;
     }
 
@@ -168,7 +173,7 @@ public class MessageBusImpl implements MessageBus {
     @Override
     public void register(MicroService m)
     {
-        _messagesQueues.put(m,new Vector<>());
+        _messagesQueues.put(m,new LinkedBlockingQueue<>());
     }
 
     @Override
@@ -197,7 +202,7 @@ public class MessageBusImpl implements MessageBus {
     @Override
     public Message awaitMessage(MicroService m) throws InterruptedException {
         Message msg = null;
-        Vector<Message> mQueue = null;
+        LinkedBlockingQueue<Message> mQueue = null;
         try {
             mQueue = _messagesQueues.get(m);
         } catch (IllegalStateException e) {
@@ -205,19 +210,20 @@ public class MessageBusImpl implements MessageBus {
         }
         if (mQueue == null)
             return null;
-        synchronized (mQueue) {
+//        synchronized (mQueue) {
             try {
-                while (_messagesQueues.get(m).isEmpty()) {
-                    mQueue.wait();
-                }
-                msg = _messagesQueues.get(m).firstElement();
-                _messagesQueues.get(m).remove(msg);
+//                while (_messagesQueues.get(m).isEmpty()) {
+//                    mQueue.wait();
+//                }
+//                msg = _messagesQueues.get(m).firstElement();
+//                _messagesQueues.get(m).remove(msg);
+                msg = _messagesQueues.get(m).take();
             } catch (InterruptedException e){
                 Thread.currentThread().interrupt();
                 return null;
             }
-            mQueue.notifyAll();
-        }
+//            mQueue.notifyAll();
+//        }
         return msg;
     }
 

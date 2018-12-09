@@ -1,6 +1,7 @@
 package bgu.spl.mics.application.services;
 
 import bgu.spl.mics.MicroService;
+import bgu.spl.mics.application.messages.TickBroadcast;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -20,6 +21,7 @@ public class TimeService extends MicroService{
 	private final int _duration;
 	private final int _speed;
 	private Timer _timer;
+	private int _currTick;
 
 	public TimeService(int speed, int duration) {
 		super("TimeService");
@@ -34,12 +36,12 @@ public class TimeService extends MicroService{
         _timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                // TODO : what does it do
+				_currTick ++;
+                sendBroadcast(new TickBroadcast(_currTick));
+                if (_currTick == _duration/_speed)
+                	_timer.cancel();
             }
-        }, _speed);
-
-		// TODO Implement this
-
+        }, _speed, _speed);
 	}
 
 }
