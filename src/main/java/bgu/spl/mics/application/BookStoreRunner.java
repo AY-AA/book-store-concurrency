@@ -1,6 +1,7 @@
 package bgu.spl.mics.application;
 
 
+import Accessories.FileToString;
 import bgu.spl.mics.application.passiveObjects.BookInventoryInfo;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -11,15 +12,17 @@ import org.json.JSONObject;
  * In the end, you should output serialized objects.
  */
 public class BookStoreRunner {
-    public BookStoreRunner(String s) {
-        parseJSON(s);
+    public BookStoreRunner(String path) {
+        String jsonString = FileToString.readFile(path);
+        parseJSON(jsonString);
     }
 
-    private void parseJSON(String s) {
+
+    private void parseJSON(String path) {
         BookInventoryInfo[] books = null;
         try{
             // the main JSON object
-            JSONObject jsonObject = new JSONObject(s);
+            JSONObject jsonObject = new JSONObject(path);
 
             //inventory creation
             JSONArray inventoryArray = jsonObject.optJSONArray("initialInventory");
@@ -37,11 +40,11 @@ public class BookStoreRunner {
             }
         }
         catch (JSONException e){
-            System.out.println("catch");
+            System.out.println(e.getMessage());
         }
-//        for (int i = 0; i < books.length ; i++) {
-//            System.out.println(books[i].getBookTitle() + " amount : " + books[i].getAmountInInventory() + " price : " + books[i].getPrice());
-//        }
+        for (int i = 0; i < books.length ; i++) {
+            System.out.println(books[i].getBookTitle() + " amount : " + books[i].getAmountInInventory() + " price : " + books[i].getPrice());
+        }
     }
 
     private void printFiles()
@@ -51,8 +54,9 @@ public class BookStoreRunner {
 
     public static void main(String[] args) {
 
+        String inputFile = System.getProperty("user.dir")+"/src/input.json";
 
-        BookStoreRunner bookStore = new BookStoreRunner("input.json");
+        BookStoreRunner bookStore = new BookStoreRunner(inputFile);
 
     }
 }
