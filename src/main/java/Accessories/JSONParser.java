@@ -9,24 +9,27 @@ import java.util.Vector;
 
 public class JSONParser {
 
-    public static ArrayList<Vector<String>> ParseJSON(JSONObject jsonObject, String parse, String[] types) {
-        ArrayList<Vector<String>> ans = new ArrayList<>();
-        try {
-            // find the required array
-            JSONArray jsonArray = jsonObject.optJSONArray(parse);
-
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject currObject = jsonArray.getJSONObject(i);
-                Vector<String> currVector = new Vector<>();
-
-                for (int j = 0 ; j < types.length ; j++)
-                    currVector.add(currObject.optString(types[j]));
-
-                ans.add(currVector);
-            }
-        } catch (JSONException e) {
-            System.out.println(e.getMessage());
+    public static Vector<String> ParseJSON(JSONObject jsonObject, String[] types) { //receiving Object
+        Vector<String> ans  = new Vector<>();
+        Object currObj = new Object();
+        for (int i = 0; i < types.length; i++) {
+            currObj = jsonObject.get(types[i]);
+            ans.add(currObj.toString());
         }
-    return ans;
+        return ans;
     }
+
+    public static ArrayList<Vector<String>> ParseJSON(JSONArray jsonArray, String[] types) { //receiving Array
+        ArrayList<Vector<String>> ans  = new ArrayList<>();
+        for (int i = 0; i < jsonArray.length(); i++) {
+            Vector<String> currVec = new Vector<>();
+            JSONObject currObj = (JSONObject)jsonArray.get(i);
+            for (int j = 0; j < currObj.length(); j++) {
+                currVec = ParseJSON(currObj,types);
+            }
+            ans.add(currVec);
+        }
+        return ans;
+    }
+
 }
