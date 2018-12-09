@@ -146,6 +146,7 @@ public abstract class MicroService implements Runnable {
      */
     protected final void terminate() {
         this.terminated = true;
+        System.out.println(Thread.currentThread().getName() + " terminates");
     }
 
     /**
@@ -179,5 +180,6 @@ public abstract class MicroService implements Runnable {
             }
         }
         msgBus.unregister(this);
+        System.out.println(Thread.currentThread().getName() + " unregistered");
     }
 }

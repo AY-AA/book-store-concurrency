@@ -5,7 +5,6 @@ import Accessories.FilePrinter;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 /**
  * Passive object representing the store finance management. 
@@ -18,7 +17,8 @@ import java.util.Vector;
  */
 public class MoneyRegister {
 
-	private static class MoneyRegisterHolder {
+
+    private static class MoneyRegisterHolder {
 		private static MoneyRegister _moneyHolder = new MoneyRegister();
 	}
 
@@ -89,5 +89,10 @@ public class MoneyRegister {
 			c.notifyAll();
 		}
 	}
+
+	public void printObject(String moneyPath) {
+	    FilePrinter.printToFile(this,moneyPath);
+	}
+
 
 }

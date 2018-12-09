@@ -1,6 +1,7 @@
 package bgu.spl.mics.application.services;
 
 import bgu.spl.mics.MicroService;
+import bgu.spl.mics.application.messages.TerminateBroadcast;
 
 /**
  * ResourceService is in charge of the store resources - the delivery vehicles.
@@ -13,13 +14,16 @@ import bgu.spl.mics.MicroService;
  */
 public class ResourceService extends MicroService{
 
-	public ResourceService() {
-		super("Change_This_Name");
+	public ResourceService(String name) {
+		super(name);
 		// TODO Implement this
 	}
 
 	@Override
 	protected void initialize() {
+        subscribeBroadcast(TerminateBroadcast.class, ev -> {
+            terminate();
+        });
 		// TODO Implement this
 
 	}

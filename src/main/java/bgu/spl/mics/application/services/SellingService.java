@@ -5,6 +5,7 @@ import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.BookOrderEvent;
 import bgu.spl.mics.application.messages.CheckAvailabilityEvent;
 import bgu.spl.mics.application.messages.TakeBookEvent;
+import bgu.spl.mics.application.messages.TerminateBroadcast;
 import bgu.spl.mics.application.passiveObjects.*;
 
 /**
@@ -28,6 +29,9 @@ public class SellingService extends MicroService {
 
     @Override
     protected void initialize() {
+        subscribeBroadcast(TerminateBroadcast.class, ev -> {
+            terminate();
+        });
 
         subscribeEvent(BookOrderEvent.class, ev -> {
 

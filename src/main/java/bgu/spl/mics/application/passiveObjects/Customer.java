@@ -91,4 +91,8 @@ public class Customer {
     public boolean charge(int lastAmout, int amountToCharge) {
 	    return _availableCreditAmount.compareAndSet(lastAmout,lastAmout - amountToCharge);
     }
+
+    public void takeReceipt(OrderReceipt receipt) {
+        _receipts.add(receipt);
+    }
 }

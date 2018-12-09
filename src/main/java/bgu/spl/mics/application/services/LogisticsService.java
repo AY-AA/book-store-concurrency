@@ -1,6 +1,7 @@
 package bgu.spl.mics.application.services;
 
 import bgu.spl.mics.MicroService;
+import bgu.spl.mics.application.messages.TerminateBroadcast;
 
 /**
  * Logistic service in charge of delivering books that have been purchased to customers.
@@ -13,13 +14,16 @@ import bgu.spl.mics.MicroService;
  */
 public class LogisticsService extends MicroService {
 
-	public LogisticsService() {
-		super("Change_This_Name");
+	public LogisticsService(String name) {
+		super(name);
 		// TODO Implement this
 	}
 
 	@Override
 	protected void initialize() {
+		subscribeBroadcast(TerminateBroadcast.class, ev -> {
+			terminate();
+		});
 		// TODO Implement this
 
 	}

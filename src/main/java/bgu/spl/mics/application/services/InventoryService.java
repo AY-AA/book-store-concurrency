@@ -3,6 +3,7 @@ package bgu.spl.mics.application.services;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.CheckAvailabilityEvent;
 import bgu.spl.mics.application.messages.TakeBookEvent;
+import bgu.spl.mics.application.messages.TerminateBroadcast;
 import bgu.spl.mics.application.passiveObjects.Inventory;
 import bgu.spl.mics.application.passiveObjects.OrderResult;
 
@@ -27,6 +28,10 @@ public class InventoryService extends MicroService{
 
 	@Override
 	protected void initialize() {
+        subscribeBroadcast(TerminateBroadcast.class, ev -> {
+            terminate();
+        });
+
 		subscribeEvent(CheckAvailabilityEvent.class, check_ev ->{
 			int price =_inventory.checkAvailabiltyAndGetPrice(check_ev.get_bookToOrder());
 			complete(check_ev,price);
