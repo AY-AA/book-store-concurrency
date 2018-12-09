@@ -119,7 +119,6 @@ public class BookStoreRunner {
             ArrayList<Vector<String>> orderScheduleAns = JSONParser.ParseJSON(currOrderSchedule,types2);
 
             createDataForAPI(ans, customersSimpleData, currCreditVec, i, orderScheduleAns);
-
         }
         return ans;
     }
