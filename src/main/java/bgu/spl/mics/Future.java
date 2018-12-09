@@ -37,7 +37,7 @@ public class Future<T> extends ReaderWriter<T> {
 		synchronized (_resultLocker){
 			while (!isDone()) {
 				try {
-					wait();
+					_resultLocker.wait();
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}

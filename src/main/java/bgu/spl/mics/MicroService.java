@@ -169,6 +169,7 @@ public abstract class MicroService implements Runnable {
         while (!terminated) {
             try {
                 Message m = msgBus.awaitMessage(this);
+                System.out.println(Thread.currentThread().getName() + " got a message");
                 if (m != null)  // if there's no message waiting
                     _messagesCallback.get(m.getClass()).call(m);
             }

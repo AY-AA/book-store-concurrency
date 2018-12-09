@@ -26,7 +26,7 @@ public class APIService extends MicroService{
     private HashMap<Integer, Vector<String>> _booksTicks;
 
     public APIService(Customer customer, HashMap<Integer,Vector<String>> booksTicks) {
-        super("APIService : " + customer.getCreditNumber());
+        super("APIService : " + customer.getId());
         _customer = customer;
         _booksTicks = booksTicks;
     }
