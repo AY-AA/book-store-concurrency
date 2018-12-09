@@ -1,12 +1,12 @@
 package bgu.spl.mics.example;
 
 import bgu.spl.mics.example.services.ExampleBroadcastListenerService;
-import bgu.spl.mics.example.services.ExampleMessageSenderService;
 import bgu.spl.mics.example.services.ExampleEventHandlerService;
+import bgu.spl.mics.example.services.ExampleMessageSenderService;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Scanner;
 
 public class ExampleManager {
 
@@ -16,14 +16,30 @@ public class ExampleManager {
         serviceCreators.put("brod-listener", ExampleBroadcastListenerService::new);
         serviceCreators.put("sender", ExampleMessageSenderService::new);
 
-        Scanner sc = new Scanner(System.in);
+//        Scanner sc = new Scanner(System.in);
+
+        String[] argu = {"start sender sender1 event",
+                         "start brod-listener brod1 2",
+                         "start ev-handler hand1 1",
+                         "start ev-handler hand2 2",
+                         "start sender sender2 broadcast",
+                         "start sender sender2 event",
+                         "start sender sender3 event",
+                         "start sender sender4 broadcast",
+                         "start sender sender5 event",
+                         "quit"};
+
+        int arguIndex = 0;
         boolean quit = false;
         try {
             System.out.println("Example manager is started - supported commands are: start,quit");
             System.out.println("Supporting services: " + serviceCreators.keySet());
-            while (!quit) {
-
-                String line = sc.nextLine();
+            while (!quit && arguIndex < argu.length) {
+                Thread.currentThread().sleep(10);
+//                String line = sc.nextLine();
+                String line = argu[arguIndex];
+                arguIndex++;
+                System.out.println('\n' + line);
                 String[] params = line.split("\\s+");
 
                 if (params.length > 0) {
@@ -56,7 +72,7 @@ public class ExampleManager {
             t.printStackTrace();
         } finally {
             System.out.println("Manager Terminating - UNGRACEFULLY!");
-            sc.close();
+//            sc.close();
             System.exit(0);
         }
     }

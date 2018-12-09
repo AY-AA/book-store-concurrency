@@ -1,6 +1,8 @@
 package bgu.spl.mics.application.passiveObjects;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Passive data-object representing a customer of the store.
@@ -14,18 +16,18 @@ public class Customer {
     private final int _id;
 	private final int _distance;
     private final String _address;
-    private List<OrderReceipt> _orders;
-    private int _availableCreditAmount;
+    private final List<OrderReceipt> _receipts;
+    private AtomicInteger _availableCreditAmount;
     private final int _creditCard;
 
-    public Customer(String _name, int _id, int _distance, String _address, List<OrderReceipt> _orders, int _availableCreditAmount, int _creditCard)
+    public Customer(String _name, int _id, int _distance, String _address, int _availableCreditAmount, int _creditCard)
     {
+		_receipts = new ArrayList<>();
         this._name = _name;
         this._id = _id;
         this._distance = _distance;
         this._address = _address;
-        this._orders = _orders;
-        this._availableCreditAmount = _availableCreditAmount;
+        this._availableCreditAmount = new AtomicInteger(_availableCreditAmount);
         this._creditCard = _creditCard;
     }
 
@@ -67,7 +69,7 @@ public class Customer {
      * @return A list of receipts.
      */
 	public List<OrderReceipt> getCustomerReceiptList() {
-		return _orders;
+		return _receipts;
 	}
 	
 	/**
@@ -76,7 +78,7 @@ public class Customer {
      * @return Amount of money left.   
      */
 	public int getAvailableCreditAmount() {
-		return _availableCreditAmount;
+		return _availableCreditAmount.get();
 	}
 	
 	/**
@@ -86,7 +88,7 @@ public class Customer {
 		return _creditCard;
 	}
 
-    public void charge(int amount) {
-	    _availableCreditAmount -= amount;
+    public boolean charge(int lastAmout, int amountToCharge) {
+	    return _availableCreditAmount.compareAndSet(lastAmout,lastAmout - amountToCharge);
     }
 }
