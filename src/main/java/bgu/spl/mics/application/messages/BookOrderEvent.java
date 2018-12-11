@@ -9,10 +9,14 @@ import bgu.spl.mics.application.passiveObjects.OrderReceipt;
 public class BookOrderEvent implements Event<OrderReceipt> {
 
     private Customer _customer;
-    private String _bookToOrder;
 
-    public BookOrderEvent(Customer customer, String bookToOrder){
-        _bookToOrder = bookToOrder;
+
+    private String _bookToOrderTitle;
+    private int _bookToOrderPrice;
+
+    public BookOrderEvent(Customer customer, String title, int price){
+        _bookToOrderTitle = title;
+        _bookToOrderPrice = price;
         _customer = customer;
     }
 
@@ -20,8 +24,12 @@ public class BookOrderEvent implements Event<OrderReceipt> {
         return _customer;
     }
 
-    public String get_bookToOrder() {
-        return _bookToOrder;
+    public String get_bookToOrderTitle() {
+        return _bookToOrderTitle;
+    }
+
+    public int get_bookToOrderPrice() {
+        return _bookToOrderPrice;
     }
 }
 
