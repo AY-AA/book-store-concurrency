@@ -1,5 +1,6 @@
 package bgu.spl.mics;
 
+import bgu.spl.mics.application.messages.TerminateBroadcast;
 import bgu.spl.mics.application.messages.TickBroadcast;
 
 import java.util.HashMap;
@@ -175,7 +176,9 @@ public abstract class MicroService implements Runnable {
         while (!terminated) {
             try {
                 Message m = msgBus.awaitMessage(this);
-                if (!(m instanceof TickBroadcast))
+                if ((m instanceof TerminateBroadcast))
+                    System.out.println(Thread.currentThread().getName() + " got a TERMINATE message");
+                else if (!(m instanceof TickBroadcast))
                     System.out.println(Thread.currentThread().getName() + " got a message");
                 if (m != null)  // if there's no message waiting
                     _messagesCallback.get(m.getClass()).call(m);
