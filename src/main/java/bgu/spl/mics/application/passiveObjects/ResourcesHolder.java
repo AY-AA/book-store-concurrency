@@ -1,9 +1,12 @@
 package bgu.spl.mics.application.passiveObjects;
 
+import Accessories.VehiclesSemaphore;
 import bgu.spl.mics.Future;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.Semaphore;
 
 /**
  * Passive object representing the resource manager.
@@ -28,9 +31,11 @@ public class ResourcesHolder {
 	}
 
 	// A collection of delivery vehicles
-	private Collection<DeliveryVehicle> _deliveryVehicles;
+	private List<DeliveryVehicle> _deliveryVehicles;
+	private VehiclesSemaphore _vehiclesSem;
 
 	private ResourcesHolder(){
+
 		_deliveryVehicles = new ArrayList<>();
 	}
 
@@ -42,8 +47,13 @@ public class ResourcesHolder {
      * 			{@link DeliveryVehicle} when completed.   
      */
 	public Future<DeliveryVehicle> acquireVehicle() {
-		Future<DeliveryVehicle> future;
-		return null;
+		Future<DeliveryVehicle> future = null;
+		int vehicleIndex = _vehiclesSem.acquire();
+		if(vehicleIndex != -1){
+			future = new Future<>();
+			future.resolve(_deliveryVehicles.get(vehicleIndex));
+		}
+		return future;
 	}
 	
 	/**
@@ -53,7 +63,8 @@ public class ResourcesHolder {
      * @param vehicle	{@link DeliveryVehicle} to be released.
      */
 	public void releaseVehicle(DeliveryVehicle vehicle) {
-		//TODO: Implement this
+		int index = _deliveryVehicles.indexOf(vehicle);
+		_vehiclesSem.release(index);
 	}
 	
 	/**

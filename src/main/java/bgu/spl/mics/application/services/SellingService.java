@@ -2,10 +2,7 @@ package bgu.spl.mics.application.services;
 
 import bgu.spl.mics.Future;
 import bgu.spl.mics.MicroService;
-import bgu.spl.mics.application.messages.BookOrderEvent;
-import bgu.spl.mics.application.messages.CheckAvailabilityEvent;
-import bgu.spl.mics.application.messages.TakeBookEvent;
-import bgu.spl.mics.application.messages.TerminateBroadcast;
+import bgu.spl.mics.application.messages.*;
 import bgu.spl.mics.application.passiveObjects.*;
 
 /**
@@ -44,6 +41,9 @@ public class SellingService extends MicroService {
                         OrderResult taken = isTaken.get();
                         if (taken == OrderResult.SUCCESSFULLY_TAKEN) {
                            _moneyRegister.chargeCreditCard(ev.get_customer(),price);
+                           String address = ev.get_customer().getAddress();
+                           int distance = ev.get_customer().getDistance();
+                           sendEvent(new DeliveryEvent(address,distance));
                         }
                     }
                 }
