@@ -36,7 +36,7 @@ public class SellingService extends MicroService {
             _currTick = tickEV.getCurrenTick();
         });
         subscribeEvent(BookOrderEvent.class, ev -> {
-
+            System.out.println(getName() + " is selling , tick number = " + _currTick);
             Future<Integer> isAvailable = sendEvent(new CheckAvailabilityEvent(ev.get_bookToOrderTitle()));
             if (isAvailable != null) {
                 Integer price = isAvailable.get(); //waits until resolved

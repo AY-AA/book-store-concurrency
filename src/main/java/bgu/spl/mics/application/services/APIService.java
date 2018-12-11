@@ -39,19 +39,22 @@ public class APIService extends MicroService{
 
 
         subscribeBroadcast(TickBroadcast.class, ev -> {
+            Vector<Future<OrderReceipt>> orders = new Vector<>();
             int currTick = ev.getCurrenTick();
             if (!_booksTicks.containsKey(currTick))
                 return;
             Vector<String> books = _booksTicks.get(currTick);
             for (String currBook : books)
             {
+                System.out.println(getName() + " is BUYING , tick number = " + currTick);
                 Future<OrderReceipt> order = sendEvent(new BookOrderEvent(_customer,currBook,0));
+                orders.add(order);
                 if (order == null) {
                     System.out.println("No Micro-Service has registered to handle book order event events");
                 }
-                OrderReceipt receipt = order.get();
-                _customer.takeReceipt(receipt);
             }
+            for (Future<OrderReceipt> future : orders)
+                _customer.takeReceipt(future.get());
         });
     }
 
