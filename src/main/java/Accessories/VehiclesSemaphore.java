@@ -9,9 +9,9 @@ public class VehiclesSemaphore  {
     private int _free;
     private boolean[] _aqcuiredVehicles;
 
-    public VehiclesSemaphore(int permits, int numOfVehicles){
-        _permits = permits;
-        _free = permits;
+    public VehiclesSemaphore(int numOfVehicles){
+        _permits = numOfVehicles;
+        _free = numOfVehicles;
         _aqcuiredVehicles = new boolean[numOfVehicles];
     }
 

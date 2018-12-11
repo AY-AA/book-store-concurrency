@@ -29,6 +29,7 @@ public class LogisticsService extends MicroService {
 			terminate();
 		});
 		subscribeEvent(DeliveryEvent.class, delEv->{
+			System.out.println(getName() + " got a delivery request");
 			Future<DeliveryVehicle> future = sendEvent(new CarAcquireEvent());
 			if(future != null){
 				DeliveryVehicle deliveryVehicle = future.get();

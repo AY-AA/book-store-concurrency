@@ -38,6 +38,8 @@ public class TimeService extends MicroService{
             @Override
             public void run() {
 				_currTick ++;
+				if (_currTick == 3)
+					System.out.println(" tick number 3");
                 sendBroadcast(new TickBroadcast(_currTick));
                 if (_currTick == _duration) {
                     sendBroadcast(new TerminateBroadcast());

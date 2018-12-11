@@ -82,7 +82,7 @@ public class MoneyRegister {
 		synchronized (c)
 		{
 			int amountLeft = c.getAvailableCreditAmount();
-			while (amountLeft >= amount && !c.charge(amount,amount))
+			while (amountLeft >= amount && !c.charge(amountLeft,amount))
 			{
 				amountLeft = c.getAvailableCreditAmount();
 			}

@@ -47,6 +47,8 @@ public class ResourcesHolder {
      * 			{@link DeliveryVehicle} when completed.   
      */
 	public Future<DeliveryVehicle> acquireVehicle() {
+		if (_vehiclesSem == null)	// in case semaphore has not initialized yet
+			return null;
 		Future<DeliveryVehicle> future = null;
 		int vehicleIndex = _vehiclesSem.acquire();
 		if(vehicleIndex != -1){
@@ -75,6 +77,7 @@ public class ResourcesHolder {
 	public void load(DeliveryVehicle[] vehicles) {
 		for (DeliveryVehicle vehicle : vehicles)
 		    _deliveryVehicles.add(vehicle);
+		_vehiclesSem = new VehiclesSemaphore(_deliveryVehicles.size());
 	}
 
 }
