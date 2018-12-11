@@ -55,6 +55,7 @@ public class APIService extends MicroService{
             }
             for (Future<OrderReceipt> future : orders)
                 _customer.takeReceipt(future.get());
+            System.out.println(get_customer().getName() + " FINISHED ordering");
         });
     }
 
