@@ -52,7 +52,7 @@ public class ResourcesHolder {
 		Future<DeliveryVehicle> future = null;
 		int vehicleIndex = _vehiclesSem.acquire();
 		if(vehicleIndex != -1){
-			future = new Future<>();
+			future = new Future<DeliveryVehicle>();
 			future.resolve(_deliveryVehicles.get(vehicleIndex));
 		}
 		return future;

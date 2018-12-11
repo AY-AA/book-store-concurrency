@@ -35,6 +35,7 @@ public class LogisticsService extends MicroService {
 				DeliveryVehicle deliveryVehicle = future.get();
 				if(deliveryVehicle != null){
 					deliveryVehicle.deliver(delEv.get_address(),delEv.get_distance());
+					System.out.println(getName() + " RELEASES vehicle ");
 					sendEvent(new ReleaseVehicle(deliveryVehicle));
 				}
 			}

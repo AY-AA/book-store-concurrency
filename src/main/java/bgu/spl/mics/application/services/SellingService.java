@@ -36,7 +36,7 @@ public class SellingService extends MicroService {
             _currTick = tickEV.getCurrenTick();
         });
         subscribeEvent(BookOrderEvent.class, ev -> {
-            System.out.println(getName() + " is selling , tick number = " + _currTick);
+            System.out.println(getName() + " is SELLING , tick number = " + _currTick);
             Future<Integer> isAvailable = sendEvent(new CheckAvailabilityEvent(ev.get_bookToOrderTitle()));
             if (isAvailable != null) {
                 Integer price = isAvailable.get(); //waits until resolved
@@ -50,9 +50,14 @@ public class SellingService extends MicroService {
                            int distance = ev.get_customer().getDistance();
                            sendEvent(new DeliveryEvent(address,distance));
                            OrderReceipt orderReceipt = createReceipt(ev.get_customer(),ev.get_bookToOrderTitle(),ev.get_bookToOrderPrice());
+                           _moneyRegister.file(orderReceipt);
                            complete(ev,orderReceipt);
                         }
                     }
+                }
+                else {
+                    System.out.println("------ NO MONEY ! ------");
+                    complete(ev,new OrderReceipt(0,"a",1,"a",1,1,1,1));
                 }
             }
         });
