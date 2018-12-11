@@ -50,6 +50,7 @@ public class SellingService extends MicroService {
                            int distance = ev.get_customer().getDistance();
                            sendEvent(new DeliveryEvent(address,distance));
                            OrderReceipt orderReceipt = createReceipt(ev.get_customer(),ev.get_bookToOrderTitle(),ev.get_bookToOrderPrice());
+                           _moneyRegister.file(orderReceipt);
                            complete(ev,orderReceipt);
                         }
                     }
