@@ -11,6 +11,6 @@ public class TickBroadcast implements Broadcast {
     }
 
     public int getCurrenTick() {
-        return currenTick;
+        return currenTick; 
     }
 }
