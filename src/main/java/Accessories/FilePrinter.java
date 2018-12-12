@@ -6,7 +6,7 @@ import java.io.ObjectOutputStream;
 
 
 /**
- * File Printer class is an accessory which prints a given object into a given file name
+ * File Printer class is an accessy which prints a given object into a given file name
  */
 
 public class FilePrinter {
