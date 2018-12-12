@@ -253,25 +253,6 @@ public class BookStoreRunner {
         }
     }
 
-
-    private void printObjects(String customersPath, String booksPath, String ordersPath, String moneyPath) {
-        printCustomers(customersPath);
-        Inventory.getInstance().printInventoryToFile(booksPath);
-        MoneyRegister.getInstance().printOrderReceipts(ordersPath);
-        MoneyRegister.getInstance().printObject(moneyPath);
-    }
-
-    private void printCustomers(String customersPath) {
-        HashMap<Integer,Customer> customerHashMap = new HashMap<>();
-        for (MicroService microService : _microServices) {
-            if (microService instanceof APIService){
-                Customer customer = ((APIService) microService).get_customer();
-                customerHashMap.put(customer.getId(), customer);
-            }
-        }
-        FilePrinter.printToFile(customerHashMap,customersPath);
-    }
-
     /**
      * args = {
      *      input : json path,

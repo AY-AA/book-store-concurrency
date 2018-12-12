@@ -1,6 +1,5 @@
 package bgu.spl.mics.application.services;
 
-import bgu.spl.mics.Event;
 import bgu.spl.mics.Future;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.*;
@@ -19,7 +18,7 @@ import bgu.spl.mics.application.passiveObjects.*;
 public class SellingService extends MicroService {
 
     private MoneyRegister _moneyRegister;
-    private int _currTick;
+    private int _currTick,_orderTick,_issuedTick;
 
     public SellingService(String name) {
         super(name);
@@ -37,6 +36,7 @@ public class SellingService extends MicroService {
         });
         subscribeEvent(BookOrderEvent.class, ev -> {
             System.out.println(getName() + " is SELLING , tick number = " + _currTick);
+            _orderTick = _currTick;
             Future<Integer> isAvailable = sendEvent(new CheckAvailabilityEvent(ev.get_bookToOrderTitle()));
             if (isAvailable != null) {
                 Integer price = isAvailable.get(); //waits until resolved
@@ -49,7 +49,8 @@ public class SellingService extends MicroService {
                            String address = ev.get_customer().getAddress();
                            int distance = ev.get_customer().getDistance();
                            sendEvent(new DeliveryEvent(address,distance));
-                           OrderReceipt orderReceipt = createReceipt(ev.get_customer(),ev.get_bookToOrderTitle(),ev.get_bookToOrderPrice());
+                            _issuedTick = _currTick;
+                            OrderReceipt orderReceipt = createReceipt(ev.get_customer(),ev.get_bookToOrderTitle(),ev.get_bookToOrderPrice(),_issuedTick,_orderTick);
                            _moneyRegister.file(orderReceipt);
                            complete(ev,orderReceipt);
                         }
@@ -57,21 +58,21 @@ public class SellingService extends MicroService {
                 }
                 else {
                     System.out.println("------ NO MONEY ! ------");
-                    complete(ev,new OrderReceipt(0,"a",1,"a",1,1,1,1));
+                    complete(ev,null);
                 }
             }
         });
     }
 
-    private OrderReceipt createReceipt(Customer c, String bookTitle, int bookPrice){
+    private OrderReceipt createReceipt(Customer c, String bookTitle, int bookPrice,int issuedTick,int orderProcessTick){
         String seller = this.getName();
         int customerId = c.getId();
         String _bookTitle = bookTitle;
         int _bookPrice = bookPrice;
-        int issuedTick = 1;
-        int orderTick = 1;
-        int processTick = 1;
-        OrderReceipt orderReceipt = new OrderReceipt(0,seller,customerId,bookTitle,bookPrice,issuedTick,orderTick,processTick);
+        int tIssuedTick = issuedTick;
+        int tOrderTick = orderProcessTick;
+        int processTick = orderProcessTick;
+        OrderReceipt orderReceipt = new OrderReceipt(0,seller,customerId,_bookTitle,_bookPrice,tIssuedTick,tOrderTick,processTick);
         return orderReceipt;
     }
 }
