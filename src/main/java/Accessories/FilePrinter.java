@@ -22,7 +22,7 @@ public class FilePrinter {
             oos.writeObject(object);
             //Done writing file.
         } catch (Exception ex) {
-            ex.printStackTrace();
+            System.out.println("ERROR : " + fileName + " file cannot be written");
         } finally {     // we close all used objects
             if (fileOutputStream != null) {
                 try {

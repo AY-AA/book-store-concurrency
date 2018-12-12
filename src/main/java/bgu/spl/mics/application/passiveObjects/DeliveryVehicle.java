@@ -46,7 +46,7 @@ public class DeliveryVehicle {
      */
 	public void deliver(String address, int distance) {
 		// calculation of time needed to arrive, we like physics
-        long timeToSleep = distance/_speed;
+        long timeToSleep = distance * _speed;
 
         try {   // thread goes to sleep -- simulates a delivery
             Thread.sleep(timeToSleep);

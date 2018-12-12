@@ -24,11 +24,23 @@ public class APIService extends MicroService{
 
     private Customer _customer;
     private HashMap<Integer, Vector<String>> _booksTicks;
+    private final int _lastOrderTick;
 
     public APIService(Customer customer, HashMap<Integer,Vector<String>> booksTicks) {
         super("APIService : " + customer.getId());
         _customer = customer;
         _booksTicks = booksTicks;
+        _lastOrderTick = findLastTick();
+    }
+
+    private int findLastTick() {
+        int max = -1 ;
+        for (Integer currTick : _booksTicks.keySet())
+        {
+            if (currTick > max)
+                max = currTick;
+        }
+        return max;
     }
 
     @Override
@@ -56,6 +68,10 @@ public class APIService extends MicroService{
             for (Future<OrderReceipt> future : orders)
                 _customer.takeReceipt(future.get());
             System.out.println(get_customer().getName() + " FINISHED ordering");
+            if (_lastOrderTick == currTick) {
+                System.out.println(get_customer().getName() + " ORDERED for the LAST time");
+                terminate();
+            }
         });
     }
 
