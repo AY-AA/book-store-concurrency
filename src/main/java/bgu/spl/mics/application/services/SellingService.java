@@ -44,16 +44,17 @@ public class SellingService extends MicroService {
                     Future<OrderResult> isTaken = sendEvent(new TakeBookEvent(ev.get_bookToOrderTitle()));
                     if (isTaken != null) {
                         OrderResult taken = isTaken.get();
+                        OrderReceipt orderReceipt = null;
                         if (taken == OrderResult.SUCCESSFULLY_TAKEN) {
                            _moneyRegister.chargeCreditCard(ev.get_customer(),price);
                            String address = ev.get_customer().getAddress();
                            int distance = ev.get_customer().getDistance();
                            sendEvent(new DeliveryEvent(address,distance));
                             _issuedTick = _currTick;
-                            OrderReceipt orderReceipt = createReceipt(ev.get_customer(),ev.get_bookToOrderTitle(),ev.get_bookToOrderPrice(),_issuedTick,_orderTick);
+                            orderReceipt = createReceipt(ev.get_customer(),ev.get_bookToOrderTitle(),ev.get_bookToOrderPrice(),_issuedTick,_orderTick);
                            _moneyRegister.file(orderReceipt);
-                           complete(ev,orderReceipt);
                         }
+                        complete(ev,orderReceipt);
                     }
                 }
                 else {

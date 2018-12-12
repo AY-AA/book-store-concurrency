@@ -42,15 +42,14 @@ public class TimeService extends MicroService{
             @Override
             public void run() {
 				_currTick ++;
-				if (_currTick == 3)
-					System.out.println("============== tick number 3");
-                sendBroadcast(new TickBroadcast(_currTick));
                 if (_currTick == _duration) {
 					System.out.println("TIME SERVICE SENDS a TERMINATE MSG");
 					sendBroadcast(new TerminateBroadcast());
                     _timer.cancel();
                 }
-            }
+                else
+					sendBroadcast(new TickBroadcast(_currTick));
+			}
         }, _speed, _speed);
 	}
 

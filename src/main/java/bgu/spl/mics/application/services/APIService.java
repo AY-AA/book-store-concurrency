@@ -66,9 +66,12 @@ public class APIService extends MicroService{
                 }
             }
             for (Future<OrderReceipt> future : orders) {
-                _customer.takeReceipt(future.get());
-//                OrderReceipt oR = future.get();
-//                System.out.println(oR.getBookTitle());
+                OrderReceipt oR = future.get();
+                _customer.takeReceipt(oR);
+                if (oR != null)
+                    System.out.println(" ================ " + get_customer().getName() + " BOUGHT " + oR.getBookTitle());
+                else
+                    System.out.println(" ================ " + get_customer().getName() + " DIDNT BUY");
             }
             System.out.println(get_customer().getName() + " FINISHED ordering");
             if (_lastOrderTick == currTick) {
