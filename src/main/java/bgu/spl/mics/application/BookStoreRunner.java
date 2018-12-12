@@ -20,22 +20,48 @@ import java.util.Vector;
  */
 public class BookStoreRunner {
 
-    Vector<MicroService> _microServices;
+    private Vector<MicroService> _microServices;
+    private HashMap<Integer,Customer> _customers;
 
-
-    public BookStoreRunner(String path) {
+    public BookStoreRunner(String[] paths) {
         _microServices = new Vector<>();
-        String jsonString = FileToString.readFile(path);
+        _customers = new HashMap<>();
+        String jsonString = FileToString.readFile(paths[0]);
         parseJSONAndLoad(jsonString);
         startThreads();
+
+        printToFiles(paths);
+
+        boolean print =  _microServices.size() == MicroService.x;
+        System.out.println("--- ALL THREADS FINISHED  = " + print + " ---");
+
+        System.exit(0);
+
+    }
+
+    private void printToFiles(String[] paths) {
+        FilePrinter.printToFile(_customers,paths[1]);
+        Inventory.getInstance().printInventoryToFile(paths[2]);
+        MoneyRegister.getInstance().printOrderReceipts(paths[3]);
+        MoneyRegister.getInstance().printObject(paths[4]);
+
     }
 
     private void startThreads() {
+        MicroService timeService = _microServices.lastElement();
         for (MicroService microService : _microServices)
         {
             Thread thread = new Thread(microService);
             thread.setName(microService.getName());
             thread.start();
+            if (microService == timeService) {
+                try {
+                    System.out.println("--- THREADS STARTED ---");
+                    thread.join();
+                } catch (InterruptedException e) {
+                    return;
+                }
+            }
         }
     }
 
@@ -210,6 +236,7 @@ public class BookStoreRunner {
         }
 
         Customer currCustomer = new Customer(name,id,distance,address,amount,number);
+        _customers.put(id,currCustomer);
         ans.put(currCustomer,orders);
     }
 
@@ -226,25 +253,6 @@ public class BookStoreRunner {
         }
     }
 
-
-    private void printObjects(String customersPath, String booksPath, String ordersPath, String moneyPath) {
-        printCustomers(customersPath);
-        Inventory.getInstance().printInventoryToFile(booksPath);
-        MoneyRegister.getInstance().printOrderReceipts(ordersPath);
-        MoneyRegister.getInstance().printObject(moneyPath);
-    }
-
-    private void printCustomers(String customersPath) {
-        HashMap<Integer,Customer> customerHashMap = new HashMap<>();
-        for (MicroService microService : _microServices) {
-            if (microService instanceof APIService){
-                Customer customer = ((APIService) microService).get_customer();
-                customerHashMap.put(customer.getId(), customer);
-            }
-        }
-        FilePrinter.printToFile(customerHashMap,customersPath);
-    }
-
     /**
      * args = {
      *      input : json path,
@@ -259,8 +267,12 @@ public class BookStoreRunner {
 
         System.out.println("--- PROGRAM STARTED ---");
 
-        String inputFile = System.getProperty("user.dir")+"/src/input.json";
-        BookStoreRunner bookStore = new BookStoreRunner(inputFile);
+        String inputFile = System.getProperty("user.dir");
+        String[] a = {inputFile + "/src/input.json",inputFile + "/customers.txt",inputFile + "/books.txt",inputFile + "/orders.txt",inputFile + "/moneyRegister.txt"};
+        BookStoreRunner bookStore = new BookStoreRunner(a);
+
+//        BookStoreRunner bookStore = new BookStoreRunner(args);
+
 
     }
 }

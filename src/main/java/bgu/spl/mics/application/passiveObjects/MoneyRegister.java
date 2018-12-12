@@ -3,6 +3,7 @@ package bgu.spl.mics.application.passiveObjects;
 
 import Accessories.FilePrinter;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,7 +16,7 @@ import java.util.List;
  * <p>
  * You can add ONLY private fields and methods to this class as you see fit.
  */
-public class MoneyRegister {
+public class MoneyRegister implements Serializable {
 
 
     private static class MoneyRegisterHolder {

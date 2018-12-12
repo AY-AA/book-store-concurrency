@@ -33,18 +33,22 @@ public class TimeService extends MicroService{
 
 	@Override
 	protected void initialize() {
+		subscribeBroadcast(TerminateBroadcast.class, ev ->{
+			terminate();
+		});
+
         _timer = new Timer();
         _timer.schedule(new TimerTask() {
             @Override
             public void run() {
 				_currTick ++;
 				if (_currTick == 3)
-					System.out.println(" tick number 3");
+					System.out.println("============== tick number 3");
                 sendBroadcast(new TickBroadcast(_currTick));
                 if (_currTick == _duration) {
-                    sendBroadcast(new TerminateBroadcast());
+					System.out.println("TIME SERVICE SENDS a TERMINATE MSG");
+					sendBroadcast(new TerminateBroadcast());
                     _timer.cancel();
-                    terminate();
                 }
             }
         }, _speed, _speed);

@@ -33,10 +33,12 @@ public class InventoryService extends MicroService{
         });
 
 		subscribeEvent(CheckAvailabilityEvent.class, check_ev ->{
+			System.out.println(getName() + " CHECKS if " + check_ev.get_bookToOrder() + " is available");
 			int price =_inventory.checkAvailabiltyAndGetPrice(check_ev.get_bookToOrder());
 			complete(check_ev,price);
 		});
 		subscribeEvent(TakeBookEvent.class, take_ev->{
+			System.out.println(getName() + " TAKES " + take_ev.get_bookToOrder());
 			OrderResult res =_inventory.take(take_ev.get_bookToOrder());
 			complete(take_ev,res);
 		});

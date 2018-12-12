@@ -26,6 +26,8 @@ import java.util.Vector;
  */
 public abstract class MicroService implements Runnable {
 
+    public static int x = 0 ;
+//    private static final Logger LOGGER = LoggerFactory.getLogger(IndexProcessor.class);
     private boolean terminated = false;
     private final String name;
     private HashMap<Class, Callback> _messagesCallback; // callbacks created using lambda in initiate method
@@ -176,10 +178,6 @@ public abstract class MicroService implements Runnable {
         while (!terminated) {
             try {
                 Message m = msgBus.awaitMessage(this);
-                if ((m instanceof TerminateBroadcast))
-                    System.out.println(Thread.currentThread().getName() + " got a TERMINATE message");
-                else if (!(m instanceof TickBroadcast))
-                    System.out.println(Thread.currentThread().getName() + " got a message");
                 if (m != null)  // if there's no message waiting
                     _messagesCallback.get(m.getClass()).call(m);
             } catch (InterruptedException e) {
@@ -190,6 +188,6 @@ public abstract class MicroService implements Runnable {
             }
         }
         msgBus.unregister(this);
-        System.out.println(Thread.currentThread().getName() + " unregistered");
+        x++;
     }
 }
