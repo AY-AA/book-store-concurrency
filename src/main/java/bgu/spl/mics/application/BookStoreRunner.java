@@ -99,7 +99,7 @@ public class BookStoreRunner {
     private void loadServices(int [] numOfServices) {
         int services = numOfServices[0];
         for (int j = 0 ; j < services ; j++){
-                _microServices.add(new SellingService("SellingService " + j));
+            _microServices.add(new SellingService("SellingService " + j));
         }
         services = numOfServices[1];
         for (int j = 0 ; j < services ; j++){
@@ -259,10 +259,6 @@ public class BookStoreRunner {
      * @param args
      */
     public static void main(String[] args) {
-//        BookStoreRunner bookStore = new BookStoreRunner(args[0]);
-
-        // args[1] = customersPath
-
         System.out.println("--- PROGRAM STARTED ---");
 
         String inputFile = System.getProperty("user.dir");
