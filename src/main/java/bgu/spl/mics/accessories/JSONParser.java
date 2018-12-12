@@ -1,7 +1,6 @@
-package Accessories;
+package bgu.spl.mics.accessories;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;

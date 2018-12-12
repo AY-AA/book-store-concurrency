@@ -1,7 +1,7 @@
 package bgu.spl.mics.application.passiveObjects;
 
 
-import Accessories.FilePrinter;
+import bgu.spl.mics.accessories.FilePrinter;
 
 import java.io.Serializable;
 import java.util.ArrayList;

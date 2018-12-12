@@ -1,12 +1,10 @@
 package bgu.spl.mics.application.passiveObjects;
 
-import Accessories.VehiclesSemaphore;
+import bgu.spl.mics.accessories.VehiclesSemaphore;
 import bgu.spl.mics.Future;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.Semaphore;
 
 /**
  * Passive object representing the resource manager.

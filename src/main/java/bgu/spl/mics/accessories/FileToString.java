@@ -1,4 +1,4 @@
-package Accessories;
+package bgu.spl.mics.accessories;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

@@ -1,6 +1,6 @@
 package bgu.spl.mics;
 
-import Accessories.ReaderWriter;
+import bgu.spl.mics.accessories.ReaderWriter;
 
 import java.util.concurrent.TimeUnit;
 

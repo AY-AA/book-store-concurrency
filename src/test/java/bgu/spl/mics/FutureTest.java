@@ -1,3 +1,5 @@
+package bgu.spl.mics;
+
 import org.junit.Before;
 import org.junit.Test;
 import bgu.spl.mics.Future;

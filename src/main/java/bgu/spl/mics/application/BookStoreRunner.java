@@ -1,9 +1,9 @@
 package bgu.spl.mics.application;
 
 
-import Accessories.FilePrinter;
-import Accessories.FileToString;
-import Accessories.JSONParser;
+import bgu.spl.mics.accessories.FilePrinter;
+import bgu.spl.mics.accessories.FileToString;
+import bgu.spl.mics.accessories.JSONParser;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.passiveObjects.*;
 import bgu.spl.mics.application.services.*;

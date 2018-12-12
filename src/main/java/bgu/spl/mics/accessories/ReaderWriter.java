@@ -1,6 +1,4 @@
-package Accessories;
-
-import java.util.concurrent.TimeUnit;
+package bgu.spl.mics.accessories;
 
 public abstract class ReaderWriter<T> {
 

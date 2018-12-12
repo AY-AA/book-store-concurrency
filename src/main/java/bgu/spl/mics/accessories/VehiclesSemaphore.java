@@ -1,7 +1,4 @@
-package Accessories;
-
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.SynchronousQueue;
+package bgu.spl.mics.accessories;
 
 public class VehiclesSemaphore  {
 
