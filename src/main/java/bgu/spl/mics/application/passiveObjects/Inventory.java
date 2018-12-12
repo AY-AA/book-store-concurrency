@@ -64,6 +64,7 @@ public class Inventory {
 			{
 				if (bookObject.takeBook(copiesLeft))
 					return OrderResult.SUCCESSFULLY_TAKEN;
+				copiesLeft = bookObject.getAmountInInventory();
 			}
 		}
 		return OrderResult.NOT_IN_STOCK;

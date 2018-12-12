@@ -43,7 +43,7 @@ public class TimeService extends MicroService{
             public void run() {
 				_currTick ++;
 				if (_currTick == 3)
-					System.out.println(" tick number 3");
+					System.out.println("============== tick number 3");
                 sendBroadcast(new TickBroadcast(_currTick));
                 if (_currTick == _duration) {
 					System.out.println("TIME SERVICE SENDS a TERMINATE MSG");
