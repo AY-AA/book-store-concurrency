@@ -1,4 +1,4 @@
-package Accessories;
+package bgu.spl.mics.accessories;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -39,9 +39,10 @@ public class FileToString {
     }
 
     private static String arrayToString(ArrayList<String> content) {
-        String ans = "";
+        StringBuilder ans = new StringBuilder();
         for ( String currLine : content)
-            ans = ans + '\n' + currLine;
-        return ans;
+            ans.append('\n').append(currLine);
+        return ans.toString();
     }
+
 }

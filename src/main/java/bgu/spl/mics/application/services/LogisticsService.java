@@ -6,7 +6,7 @@ import bgu.spl.mics.application.messages.CarAcquireEvent;
 import bgu.spl.mics.application.messages.DeliveryEvent;
 import bgu.spl.mics.application.messages.ReleaseVehicle;
 import bgu.spl.mics.application.messages.TerminateBroadcast;
-import bgu.spl.mics.application.passiveObjects.DeliveryVehicle;
+import bgu.spl.mics.application.passiveObjects.*;
 
 /**
  * Logistic service in charge of delivering books that have been purchased to customers.

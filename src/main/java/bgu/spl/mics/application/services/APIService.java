@@ -3,11 +3,7 @@ package bgu.spl.mics.application.services;
 import bgu.spl.mics.Future;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.*;
-import bgu.spl.mics.application.passiveObjects.Customer;
-import bgu.spl.mics.application.passiveObjects.Inventory;
-import bgu.spl.mics.application.passiveObjects.OrderReceipt;
-import bgu.spl.mics.application.passiveObjects.OrderResult;
-
+import bgu.spl.mics.application.passiveObjects.*;
 import java.util.HashMap;
 import java.util.Vector;
 
@@ -66,9 +62,12 @@ public class APIService extends MicroService{
                 }
             }
             for (Future<OrderReceipt> future : orders) {
-                _customer.takeReceipt(future.get());
-//                OrderReceipt oR = future.get();
-//                System.out.println(oR.getBookTitle());
+                OrderReceipt oR = future.get();
+                _customer.takeReceipt(oR);
+                if (oR != null)
+                    System.out.println(" ================ " + get_customer().getName() + " BOUGHT " + oR.getBookTitle());
+                else
+                    System.out.println(" ================ " + get_customer().getName() + " DIDNT BUY");
             }
             System.out.println(get_customer().getName() + " FINISHED ordering");
             if (_lastOrderTick == currTick) {

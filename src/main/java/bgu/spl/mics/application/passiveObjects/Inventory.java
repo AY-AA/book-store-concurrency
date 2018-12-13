@@ -1,7 +1,7 @@
 package bgu.spl.mics.application.passiveObjects;
 
 
-import Accessories.*;
+import bgu.spl.mics.accessories.*;
 
 import java.util.HashMap;
 

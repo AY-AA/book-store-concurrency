@@ -1,12 +1,11 @@
 package bgu.spl.mics.application.passiveObjects;
 
-import Accessories.VehiclesSemaphore;
+import bgu.spl.mics.accessories.VehiclesSemaphore;
 import bgu.spl.mics.Future;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.Semaphore;
 
 /**
  * Passive object representing the resource manager.
@@ -75,8 +74,7 @@ public class ResourcesHolder {
      * @param vehicles	Array of {@link DeliveryVehicle} instances to store.
      */
 	public void load(DeliveryVehicle[] vehicles) {
-		for (DeliveryVehicle vehicle : vehicles)
-		    _deliveryVehicles.add(vehicle);
+		_deliveryVehicles.addAll(Arrays.asList(vehicles));
 		_vehiclesSem = new VehiclesSemaphore(_deliveryVehicles.size());
 	}
 

@@ -100,11 +100,6 @@ public class MessageBusImpl implements MessageBus {
         // at first we need to find all micro services subscribed to b
         Vector<MicroService> microServices = _broadcastSubscriptions.get(b.getClass());
         synchronized (microServices) {
-            if (microServices == null) {
-                microServices.notifyAll();
-                return;
-            }
-
             // for each micro service subscribed to b we insert the message b into its list
             for (MicroService m : microServices) {
                 LinkedBlockingQueue<Message> currMsgVec = _messagesQueues.get(m);
@@ -186,18 +181,14 @@ public class MessageBusImpl implements MessageBus {
         for (Vector<MicroService> currVector : _eventSubscriptions.values())
         {
             synchronized (currVector) {
-                if (currVector.contains(m)) {
-                    currVector.remove(m);
-                }
+                currVector.remove(m);
                 currVector.notifyAll();
             }
         }
         for (Vector<MicroService> currVector : _broadcastSubscriptions.values())
         {
             synchronized (currVector) {
-                if (currVector.contains(m)) {
-                    currVector.remove(m);
-                }
+                currVector.remove(m);
                 currVector.notifyAll();
             }
         }

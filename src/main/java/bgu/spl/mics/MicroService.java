@@ -27,11 +27,9 @@ import java.util.Vector;
 public abstract class MicroService implements Runnable {
 
     public static int x = 0 ;
-//    private static final Logger LOGGER = LoggerFactory.getLogger(IndexProcessor.class);
     private boolean terminated = false;
     private final String name;
     private HashMap<Class, Callback> _messagesCallback; // callbacks created using lambda in initiate method
-    private Vector<Future> _futures;
 
     /**
      * @param name the micro-service name (used mainly for debugging purposes -
@@ -40,7 +38,6 @@ public abstract class MicroService implements Runnable {
     public MicroService(String name) {
         this.name = name;
         _messagesCallback = new HashMap<>();
-        _futures = new Vector<>();
     }
 
     /**

@@ -3,6 +3,7 @@ package bgu.spl.mics.application.services;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.TerminateBroadcast;
 import bgu.spl.mics.application.messages.TickBroadcast;
+import bgu.spl.mics.application.passiveObjects.*;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -42,15 +43,14 @@ public class TimeService extends MicroService{
             @Override
             public void run() {
 				_currTick ++;
-				if (_currTick == 3)
-					System.out.println("============== tick number 3");
-                sendBroadcast(new TickBroadcast(_currTick));
                 if (_currTick == _duration) {
 					System.out.println("TIME SERVICE SENDS a TERMINATE MSG");
 					sendBroadcast(new TerminateBroadcast());
                     _timer.cancel();
                 }
-            }
+                else
+					sendBroadcast(new TickBroadcast(_currTick));
+			}
         }, _speed, _speed);
 	}
 
