@@ -14,35 +14,35 @@ public class BookInventoryInfo {
 	private AtomicInteger _amountInInventory;
 	private final int _price;
 
-    public BookInventoryInfo(String _bookTitle, int amountInInventory, int price) {
-        this._bookTitle = _bookTitle;
-        this._amountInInventory = new AtomicInteger(amountInInventory);
+	public BookInventoryInfo(String _bookTitle, int amountInInventory, int price) {
+		this._bookTitle = _bookTitle;
+		this._amountInInventory = new AtomicInteger(amountInInventory);
 		_price = price;
-    }
+	}
 
-    /**
-     * Retrieves the title of this book.
-     * <p>
-     * @return The title of this book.   
-     */
+	/**
+	 * Retrieves the title of this book.
+	 * <p>
+	 * @return The title of this book.
+	 */
 	public String getBookTitle() {
 		return _bookTitle;
 	}
 
 	/**
-     * Retrieves the amount of books of this type in the inventory.
-     * <p>
-     * @return amount of available books.      
-     */
+	 * Retrieves the amount of books of this type in the inventory.
+	 * <p>
+	 * @return amount of available books.
+	 */
 	public int getAmountInInventory() {
 		return _amountInInventory.get();
 	}
 
 	/**
-     * Retrieves the price for  book.
-     * <p>
-     * @return the price of the book.
-     */
+	 * Retrieves the price for  book.
+	 * <p>
+	 * @return the price of the book.
+	 */
 	public int getPrice() {
 		return _price;
 	}

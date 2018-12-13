@@ -19,31 +19,29 @@ import bgu.spl.mics.application.passiveObjects.*;
  */
 public class LogisticsService extends MicroService {
 
-	public LogisticsService(String name) {
-		super(name);
-	}
+    public LogisticsService(String name) {
+        super(name);
+    }
 
-	@Override
-	protected void initialize() {
-		// --- TerminateBroadcast subscription
-		subscribeBroadcast(TerminateBroadcast.class, ev -> {
-			terminate();
-		});
+    @Override
+    protected void initialize() {
+        // --- TerminateBroadcast subscription
+        subscribeBroadcast(TerminateBroadcast.class, ev -> {
+            terminate();
+        });
 
-		// --- DeliveryEvent subscription
-		subscribeEvent(DeliveryEvent.class, delEv->{
-			System.out.println(getName() + " got a delivery request");
-			// sends a request to get a vehicle
-			Future<DeliveryVehicle> future = sendEvent(new CarAcquireEvent());
-			if(future != null){
-				DeliveryVehicle deliveryVehicle = future.get();
-				if(deliveryVehicle != null){	// a vehicle was found and now it delivers the book
-					deliveryVehicle.deliver(delEv.get_address(),delEv.get_distance());
-					System.out.println(getName() + " has completed the delivery and now releasing the vehicle");
-					sendEvent(new ReleaseVehicle(deliveryVehicle));
-				}
-			}
-		});
-	}
+        // --- DeliveryEvent subscription
+        subscribeEvent(DeliveryEvent.class, delEv->{
+            // sends a request to get a vehicle
+            Future<DeliveryVehicle> future = sendEvent(new CarAcquireEvent());
+            if(future != null){
+                DeliveryVehicle deliveryVehicle = future.get();
+                if(deliveryVehicle != null){	// a vehicle was found and now it delivers the book
+                    deliveryVehicle.deliver(delEv.get_address(),delEv.get_distance());
+                    sendEvent(new ReleaseVehicle(deliveryVehicle));
+                }
+            }
+        });
+    }
 
 }

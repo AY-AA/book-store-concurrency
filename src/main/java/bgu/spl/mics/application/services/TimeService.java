@@ -52,7 +52,6 @@ public class TimeService extends MicroService{
 			public void run() {
 				_currTick ++;
 				if (_currTick == _duration) {
-					System.out.println("TIME SERVICE SENDS a TERMINATE MSG");
 					sendBroadcast(new TerminateBroadcast());
 					_timer.cancel();
 				}

@@ -26,7 +26,6 @@ import java.util.Vector;
  */
 public abstract class MicroService implements Runnable {
 
-    public static int x = 0 ;
     private boolean terminated = false;
     private final String name;
     private HashMap<Class, Callback> _messagesCallback; // callbacks created using lambda in initiate method
@@ -185,6 +184,5 @@ public abstract class MicroService implements Runnable {
             }
         }
         msgBus.unregister(this);
-        x++;
     }
 }

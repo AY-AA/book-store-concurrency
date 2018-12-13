@@ -23,8 +23,8 @@ public class ResourcesHolder {
 	}
 
 	/**
-     * Retrieves the single instance of this class.
-     */
+	 * Retrieves the single instance of this class.
+	 */
 	public static ResourcesHolder getInstance() {
 		return ResourcesHolderHolder._resourceHolder;
 	}
@@ -39,12 +39,12 @@ public class ResourcesHolder {
 	}
 
 	/**
-     * Tries to acquire a vehicle and gives a future object which will
-     * resolve to a vehicle.
-     * <p>
-     * @return 	{@link Future<DeliveryVehicle>} object which will resolve to a 
-     * 			{@link DeliveryVehicle} when completed.   
-     */
+	 * Tries to acquire a vehicle and gives a future object which will
+	 * resolve to a vehicle.
+	 * <p>
+	 * @return 	{@link Future<DeliveryVehicle>} object which will resolve to a
+	 * 			{@link DeliveryVehicle} when completed.
+	 */
 	public Future<DeliveryVehicle> acquireVehicle() {
 		if (_vehiclesSem == null || _deliveryVehicles.size() == 0)	// in case semaphore has not initialized yet
 			return null;
@@ -56,23 +56,23 @@ public class ResourcesHolder {
 		}
 		return future;
 	}
-	
+
 	/**
-     * Releases a specified vehicle, opening it again for the possibility of
-     * acquisition.
-     * <p>
-     * @param vehicle	{@link DeliveryVehicle} to be released.
-     */
+	 * Releases a specified vehicle, opening it again for the possibility of
+	 * acquisition.
+	 * <p>
+	 * @param vehicle	{@link DeliveryVehicle} to be released.
+	 */
 	public void releaseVehicle(DeliveryVehicle vehicle) {
 		int index = _deliveryVehicles.indexOf(vehicle);
 		_vehiclesSem.release(index);
 	}
-	
+
 	/**
-     * Receives a collection of vehicles and stores them.
-     * <p>
-     * @param vehicles	Array of {@link DeliveryVehicle} instances to store.
-     */
+	 * Receives a collection of vehicles and stores them.
+	 * <p>
+	 * @param vehicles	Array of {@link DeliveryVehicle} instances to store.
+	 */
 	public void load(DeliveryVehicle[] vehicles) {
 		_deliveryVehicles.addAll(Arrays.asList(vehicles));
 		_vehiclesSem = new VehiclesSemaphore(_deliveryVehicles.size());

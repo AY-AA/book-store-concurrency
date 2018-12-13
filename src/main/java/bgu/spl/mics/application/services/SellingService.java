@@ -37,7 +37,6 @@ public class SellingService extends MicroService {
 
         // --- BookOrderEvent subscription
         subscribeEvent(BookOrderEvent.class, ev -> {
-            System.out.println(getName() + " is SELLING , tick number = " + _currTick);
             _orderTick = _currTick;                 //order tick update
             // checks if book is available
             Future<Integer> isAvailable = sendEvent(new CheckAvailabilityEvent(ev.get_bookToOrderTitle()));
@@ -45,7 +44,6 @@ public class SellingService extends MicroService {
                 Integer price = isAvailable.get();  //waits until resolved and then gets price
                 if (price == -1) {                  //books is not found
                     complete(ev,null);
-                    System.out.println(ev.get_bookToOrderTitle() + " IS NOT FOUND!");
                     return;
                 }
                 if (price <= ev.get_customer().getAvailableCreditAmount()) {    // customer can buy it - has money
@@ -67,7 +65,6 @@ public class SellingService extends MicroService {
                     }
                 }
                 else {      // if customer has no money, invoke customer from waiting
-                    System.out.println("------ NO MONEY ! ------");
                     complete(ev,null);
                 }
             }

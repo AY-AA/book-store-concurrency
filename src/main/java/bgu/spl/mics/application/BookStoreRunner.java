@@ -32,11 +32,7 @@ public class BookStoreRunner {
         _customers = new HashMap<>();
         parseJSONAndLoad(paths[0]);
         startThreads();
-
         printToFiles(paths);
-
-        boolean print = _microServices.size() == MicroService.x;
-        System.out.println("--- ALL THREADS FINISHED  = " + print + " ---");
     }
 
     /**
@@ -64,7 +60,6 @@ public class BookStoreRunner {
             thread.start();
             if (microService == timeService) {
                 try {
-                    System.out.println("--- THREADS STARTED ---");
                     thread.join();
                 } catch (InterruptedException e) {
                     return;
@@ -290,7 +285,6 @@ public class BookStoreRunner {
      * @param args
      */
     public static void main(String[] args) {
-        System.out.println("--- PROGRAM STARTED ---");
 
         String inputFile = System.getProperty("user.dir");
         String[] a = {inputFile + "/input.json",
@@ -299,7 +293,7 @@ public class BookStoreRunner {
                 inputFile + "/orders.txt",
                 inputFile + "/moneyRegister.txt"};
 
-               new BookStoreRunner(a);
+        new BookStoreRunner(a);
 
 //        new BookStoreRunner(args);
 
