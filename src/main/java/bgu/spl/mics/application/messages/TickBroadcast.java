@@ -2,15 +2,22 @@ package bgu.spl.mics.application.messages;
 
 import bgu.spl.mics.Broadcast;
 
+/**
+ * TickBroadcast is a message represents the time ticks in the program
+ */
 public class TickBroadcast implements Broadcast {
 
-    private final int currenTick;
+    private final int _tick;
 
-    public TickBroadcast(int currenTick) {
-        this.currenTick = currenTick;
+    public TickBroadcast(int currentTick) {
+        _tick = currentTick;
     }
 
-    public int getCurrenTick() {
-        return currenTick; 
+    /**
+     * Retrieves the tick number
+     * @return int which is the current tick
+     */
+    public int getCurrentTick() {
+        return _tick;
     }
 }

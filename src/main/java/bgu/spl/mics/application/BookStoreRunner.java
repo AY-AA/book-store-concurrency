@@ -245,15 +245,15 @@ public class BookStoreRunner {
         System.out.println("--- PROGRAM STARTED ---");
 
         String inputFile = System.getProperty("user.dir");
-//        String[] a = {inputFile + "/input.json",
-//                inputFile + "/customers.txt",
-//                inputFile + "/books.txt",
-//                inputFile + "/orders.txt",
-//                inputFile + "/moneyRegister.txt"};
+        String[] a = {inputFile + "/input.json",
+                inputFile + "/customers.txt",
+                inputFile + "/books.txt",
+                inputFile + "/orders.txt",
+                inputFile + "/moneyRegister.txt"};
 
-//               new BookStoreRunner(a);
+               new BookStoreRunner(a);
 
-        new BookStoreRunner(args);
+//        new BookStoreRunner(args);
 
 
     }
