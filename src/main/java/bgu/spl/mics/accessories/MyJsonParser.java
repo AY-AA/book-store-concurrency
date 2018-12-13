@@ -1,4 +1,4 @@
-package Accessories;
+package bgu.spl.mics.accessories;
 
 import bgu.spl.mics.application.passiveObjects.BookInventoryInfo;
 

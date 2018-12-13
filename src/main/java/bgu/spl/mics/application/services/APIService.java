@@ -55,7 +55,7 @@ public class APIService extends MicroService{
             for (String currBook : books)
             {
                 System.out.println(getName() + " is BUYING , tick number = " + currTick);
-                Future<OrderReceipt> order = sendEvent(new BookOrderEvent(_customer,currBook,0));
+                Future<OrderReceipt> order = sendEvent(new BookOrderEvent(_customer,currBook));
                 orders.add(order);
                 if (order == null) {
                     System.out.println("No Micro-Service has registered to handle book order event events");

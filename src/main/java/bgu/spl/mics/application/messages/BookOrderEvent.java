@@ -12,11 +12,9 @@ public class BookOrderEvent implements Event<OrderReceipt> {
 
 
     private String _bookToOrderTitle;
-    private int _bookToOrderPrice;
 
-    public BookOrderEvent(Customer customer, String title, int price){
+    public BookOrderEvent(Customer customer, String title){
         _bookToOrderTitle = title;
-        _bookToOrderPrice = price;
         _customer = customer;
     }
 
@@ -28,8 +26,5 @@ public class BookOrderEvent implements Event<OrderReceipt> {
         return _bookToOrderTitle;
     }
 
-    public int get_bookToOrderPrice() {
-        return _bookToOrderPrice;
-    }
 }
 

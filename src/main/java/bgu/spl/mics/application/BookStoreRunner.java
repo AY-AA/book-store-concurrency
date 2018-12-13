@@ -1,6 +1,6 @@
 package bgu.spl.mics.application;
 
-import Accessories.MyJsonParser;
+import bgu.spl.mics.accessories.MyJsonParser;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.accessories.FilePrinter;
 import bgu.spl.mics.application.passiveObjects.*;
@@ -242,17 +242,18 @@ public class BookStoreRunner {
      * @param args
      */
     public static void main(String[] args) {
-//        BookStoreRunner bookStore = new BookStoreRunner(args[0]);
-
-        // args[1] = customersPath
-
         System.out.println("--- PROGRAM STARTED ---");
 
         String inputFile = System.getProperty("user.dir");
-        String[] a = {inputFile + "/input.json",inputFile + "/customers.txt",inputFile + "/books.txt",inputFile + "/orders.txt",inputFile + "/moneyRegister.txt"};
-        BookStoreRunner bookStore = new BookStoreRunner(a);
+//        String[] a = {inputFile + "/input.json",
+//                inputFile + "/customers.txt",
+//                inputFile + "/books.txt",
+//                inputFile + "/orders.txt",
+//                inputFile + "/moneyRegister.txt"};
 
-//        BookStoreRunner bookStore = new BookStoreRunner(args);
+//               new BookStoreRunner(a);
+
+                 new BookStoreRunner(args);
 
 
     }
