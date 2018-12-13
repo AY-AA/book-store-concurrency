@@ -7,6 +7,7 @@ import bgu.spl.mics.accessories.JSONParser;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.passiveObjects.*;
 import bgu.spl.mics.application.services.*;
+import com.google.gson.JsonParser;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -68,6 +69,8 @@ public class BookStoreRunner {
      * @param jsonString is the JSON file converted into a String file
      */
     private void parseJSONAndLoad(String jsonString) {
+
+        JsonParser p = new JsonParser();
 
         JSONObject jsonObject = new JSONObject(jsonString);
 
