@@ -31,9 +31,6 @@ public class BookStoreRunner {
 
         boolean print =  _microServices.size() == MicroService.x;
         System.out.println("--- ALL THREADS FINISHED  = " + print + " ---");
-
-        System.exit(0);
-
     }
 
     private void printToFiles(String[] paths) {
