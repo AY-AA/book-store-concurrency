@@ -1,7 +1,7 @@
 {
   "initialInventory": [
   {"bookTitle": "Harry Poter", "amount": 10, "price": 90},
-  {"bookTitle": "The Hunger Games", "amount": 2, "price": 102}
+  {"bookTitle": "The Hunger Games", "amount": 1, "price": 102}
   ],
   "initialResources":[
    {"vehicles":[
@@ -38,7 +38,7 @@
         "distance":12,
          "creditCard":{"number":453536,"amount":220},
     "orderSchedule": [
-        {"bookTitle": "4 in A row", "tick": 3}
+        {"bookTitle": "The Hunger Games", "tick": 3}
     ]
     }
   ]

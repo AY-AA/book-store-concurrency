@@ -40,6 +40,11 @@ public class SellingService extends MicroService {
             Future<Integer> isAvailable = sendEvent(new CheckAvailabilityEvent(ev.get_bookToOrderTitle()));
             if (isAvailable != null) {
                 Integer price = isAvailable.get(); //waits until resolved
+                if (price == -1) {
+                    complete(ev,null);
+                    System.out.println(ev.get_bookToOrderTitle() + " IS NOT FOUND!");
+                    return;
+                }
                 if (price <= ev.get_customer().getAvailableCreditAmount()) {
                     Future<OrderResult> isTaken = sendEvent(new TakeBookEvent(ev.get_bookToOrderTitle()));
                     if (isTaken != null) {

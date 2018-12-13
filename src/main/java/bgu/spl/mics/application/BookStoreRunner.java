@@ -86,9 +86,11 @@ public class BookStoreRunner {
         TimeService timeService = parseTime(jsonData);
 
         int[] numOfServices = parseNumOfServices(jsonData);
-        loadServices(numOfServices);
         HashMap<Customer,HashMap<Integer,Vector<String>>> apis = parseCustomers(jsonData);
+
+        loadServices(numOfServices);
         loadAPIs(apis);
+
         _microServices.add(timeService);
 
 
@@ -96,7 +98,6 @@ public class BookStoreRunner {
     }
 
     private void loadAPIs(HashMap<Customer,HashMap<Integer,Vector<String>>> apis) {
-        int index = 0;
         for (Customer customer: _customers.values()) {
             _microServices.add(new APIService(customer,apis.get(customer)));
         }
