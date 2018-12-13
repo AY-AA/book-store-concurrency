@@ -164,7 +164,7 @@ public class BookStoreRunner {
     private void loadServices(int [] numOfServices) {
         int services = numOfServices[0];
         for (int j = 0 ; j < services ; j++){
-                _microServices.add(new SellingService("SellingService " + j));
+            _microServices.add(new SellingService("SellingService " + j));
         }
         services = numOfServices[1];
         for (int j = 0 ; j < services ; j++){
@@ -253,7 +253,7 @@ public class BookStoreRunner {
 
 //               new BookStoreRunner(a);
 
-                 new BookStoreRunner(args);
+        new BookStoreRunner(args);
 
 
     }
