@@ -5,6 +5,11 @@ import bgu.spl.mics.application.passiveObjects.BookInventoryInfo;
 import java.util.List;
 import java.util.Vector;
 
+/**
+ * MyJsonParser is a class connecting the json file with the runner of the program.
+ * It holds representations of objects similar to those of the json file in order to receive that data directly.
+ * This class holds objects which contain getters, it used as a bridge between the Json file and the rest of the program (especially runner).
+ */
 public class MyJsonParser {
 
     private Vector<InitialInventory> initialInventory;

@@ -12,15 +12,21 @@ import java.io.FileReader;
 import java.util.HashMap;
 import java.util.Vector;
 
-/** This is the Main class of the application. You should parse the input file,
+/**
+ * This is the Main class of the application. You should parse the input file,
  * create the different instances of the objects, and run the system.
  * In the end, you should output serialized objects.
  */
 public class BookStoreRunner {
 
     private Vector<MicroService> _microServices;
-    private HashMap<Integer,Customer> _customers;
+    private HashMap<Integer, Customer> _customers;
 
+    /**
+     * Constructor, initializing the process of getting information from Json file.
+     *
+     * @param paths
+     */
     public BookStoreRunner(String[] paths) {
         _microServices = new Vector<>();
         _customers = new HashMap<>();
@@ -29,22 +35,30 @@ public class BookStoreRunner {
 
         printToFiles(paths);
 
-        boolean print =  _microServices.size() == MicroService.x;
+        boolean print = _microServices.size() == MicroService.x;
         System.out.println("--- ALL THREADS FINISHED  = " + print + " ---");
     }
 
+    /**
+     * Method responsible for printing object to file using serialization.
+     *
+     * @param paths String array containing details the paths for the object which need to be written to file.
+     */
     private void printToFiles(String[] paths) {
-        FilePrinter.printToFile(_customers,paths[1]);
+        FilePrinter.printToFile(_customers, paths[1]);
         Inventory.getInstance().printInventoryToFile(paths[2]);
         MoneyRegister.getInstance().printOrderReceipts(paths[3]);
         MoneyRegister.getInstance().printObject(paths[4]);
 
     }
 
+    /**
+     * Assisting method responsible for initiating the threads.
+     * cycling through the microServices data structure and starting each one of them.
+     */
     private void startThreads() {
         MicroService timeService = _microServices.lastElement();
-        for (MicroService microService : _microServices)
-        {
+        for (MicroService microService : _microServices) {
             Thread thread = new Thread(microService);
             thread.setName(microService.getName());
             thread.start();
@@ -61,6 +75,7 @@ public class BookStoreRunner {
 
     /**
      * This method is responsible of parsing and loading information and instances from JSON file
+     *
      * @param jsonPath is the JSON file converted into a String file
      */
     private void parseJSONAndLoad(String jsonPath) {
@@ -86,7 +101,7 @@ public class BookStoreRunner {
         TimeService timeService = parseTime(jsonData);
 
         int[] numOfServices = parseNumOfServices(jsonData);
-        HashMap<Customer,HashMap<Integer,Vector<String>>> apis = parseCustomers(jsonData);
+        HashMap<Customer, HashMap<Integer, Vector<String>>> apis = parseCustomers(jsonData);
 
         loadServices(numOfServices);
         loadAPIs(apis);
@@ -94,33 +109,51 @@ public class BookStoreRunner {
         _microServices.add(timeService);
 
 
-
     }
 
-    private void loadAPIs(HashMap<Customer,HashMap<Integer,Vector<String>>> apis) {
-        for (Customer customer: _customers.values()) {
-            _microServices.add(new APIService(customer,apis.get(customer)));
+    /**
+     * Assisting method responsible for loading customers and creating threads representing each customer as a web client
+     *
+     * @param apis
+     */
+    private void loadAPIs(HashMap<Customer, HashMap<Integer, Vector<String>>> apis) {
+        for (Customer customer : _customers.values()) {
+            _microServices.add(new APIService(customer, apis.get(customer)));
         }
     }
 
-    private HashMap<Integer,Vector<String>> parseOrders(MyJsonParser.OrderSchedule[] orderSchedules) {
-        HashMap<Integer,Vector<String>> orders = new HashMap<>();
+    /**
+     * Parsing orders from json file and adding each order to a HashMap keyed by the tick it is supposed to be initiated at.
+     *
+     * @param orderSchedules Orders array from json file.
+     * @return
+     */
+    private HashMap<Integer, Vector<String>> parseOrders(MyJsonParser.OrderSchedule[] orderSchedules) {
+        HashMap<Integer, Vector<String>> orders = new HashMap<>();
 
         for (int i = 0; i < orderSchedules.length; i++) {
             String currTitle = orderSchedules[i].getBookTitle();
             int currTick = orderSchedules[i].getTick();
 
-            if(!orders.containsKey(currTick)){
-                orders.put(currTick,new Vector<>());
+            if (!orders.containsKey(currTick)) {
+                orders.put(currTick, new Vector<>());
             }
             orders.get(currTick).add(currTitle);
         }
         return orders;
     }
 
-    private HashMap<Customer,HashMap<Integer,Vector<String>>> parseCustomers(MyJsonParser jsonData) {
+    /**
+     * Getting the information of the customers from the json file, parsing it into customer objects and adding it to a data structure.
+     * HashMap keyed by the customer itself and the value is a HashMap keyed by the tick and its values are all the orders
+     * supposed to take place at that tick.
+     *
+     * @param jsonData
+     * @return
+     */
+    private HashMap<Customer, HashMap<Integer, Vector<String>>> parseCustomers(MyJsonParser jsonData) {
         MyJsonParser.Customer[] customersJson = jsonData.get_services().get_customers();
-        HashMap<Customer,HashMap<Integer,Vector<String>>> ans = new HashMap<>();
+        HashMap<Customer, HashMap<Integer, Vector<String>>> ans = new HashMap<>();
 
         for (int i = 0; i < customersJson.length; i++) {
             int id = customersJson[i].get_id();
@@ -130,17 +163,22 @@ public class BookStoreRunner {
             int cardNumer = customersJson[i].get_creditCard().get_number();
             int amountInAcount = customersJson[i].get_creditCard().get_amount();
 
-            Customer currCustomer = new Customer(name,id,distance,address,amountInAcount,cardNumer);
-            _customers.put(id,currCustomer);
+            Customer currCustomer = new Customer(name, id, distance, address, amountInAcount, cardNumer);
+            _customers.put(id, currCustomer);
             MyJsonParser.OrderSchedule[] orderSchedules = customersJson[i].get_orderSchedule();
-            ans.put(currCustomer,parseOrders(orderSchedules));
+            ans.put(currCustomer, parseOrders(orderSchedules));
 
         }
-
-
         return ans;
     }
 
+    /**
+     * Method responsible for getting the information about the number of services in the system.
+     * This method handles all services beside API and TIME.
+     *
+     * @param jsonData MyJsonParser object with the data from the json file.
+     * @return
+     */
     private int[] parseNumOfServices(MyJsonParser jsonData) {
         int sellingServices = jsonData.get_services().get_selling();
         int inventoryServices = jsonData.get_services().get_inventoryServices();
@@ -159,30 +197,32 @@ public class BookStoreRunner {
     /**
      * This method loads micro services which are selling, inventory, logistics and resources micro services
      * numOfServices is an array which represents how much micro services we will have in the program
+     *
      * @param numOfServices indexes: 0- selling, 1- inventory, 2- logistics, 3- resources
      */
-    private void loadServices(int [] numOfServices) {
+    private void loadServices(int[] numOfServices) {
         int services = numOfServices[0];
-        for (int j = 0 ; j < services ; j++){
+        for (int j = 0; j < services; j++) {
             _microServices.add(new SellingService("SellingService " + j));
         }
         services = numOfServices[1];
-        for (int j = 0 ; j < services ; j++){
+        for (int j = 0; j < services; j++) {
             _microServices.add(new InventoryService("InventorySerivce " + j));
         }
         services = numOfServices[2];
-        for (int j = 0 ; j < services ; j++){
+        for (int j = 0; j < services; j++) {
             _microServices.add(new LogisticsService("LogisticsSerivce " + j));
         }
         services = numOfServices[3];
-        for (int j = 0 ; j < services ; j++){
+        for (int j = 0; j < services; j++) {
             _microServices.add(new ResourceService("ResourcesSerivce " + j));
         }
     }
 
     /**
      * This method parses books objects from JSON file
-     * @param jsonData JSON object holds an array of books inside it
+     *
+     * @param jsonData MyJsonParser object with the data from the json file.
      * @return books array parsed off the json
      */
     private BookInventoryInfo[] parseBooks(MyJsonParser jsonData) {
@@ -198,7 +238,7 @@ public class BookStoreRunner {
             currBookTitle = initialInventoryVector.get(i).get_bookTitle();
             currAmount = initialInventoryVector.get(i).get_amount();
             currPrice = initialInventoryVector.get(i).get_price();
-            currBook = new BookInventoryInfo(currBookTitle,currAmount,currPrice);
+            currBook = new BookInventoryInfo(currBookTitle, currAmount, currPrice);
             books[i] = currBook;
         }
 
@@ -207,7 +247,8 @@ public class BookStoreRunner {
 
     /**
      * This method parses vehicles objects from JSON file
-     * @param jsonData JSON object holds an array of vehicles inside it
+     *
+     * @param jsonData MyJsonParser object with the data from the json file.
      * @return
      */
     private DeliveryVehicle[] parseResources(MyJsonParser jsonData) {
@@ -220,7 +261,7 @@ public class BookStoreRunner {
         for (int i = 0; i < vehicles.length; i++) {
             currLicence = vehicles[i].get_licance();
             currSpeed = vehicles[i].get_speed();
-            currVehicle = new DeliveryVehicle(currLicence,currSpeed);
+            currVehicle = new DeliveryVehicle(currLicence, currSpeed);
             deliveryVehicles[i] = currVehicle;
 
         }
@@ -228,17 +269,24 @@ public class BookStoreRunner {
         return deliveryVehicles;
     }
 
+    /**
+     * Method responsible for getting the Time object from the json file.
+     *
+     * @param jsonData MyJsonParser object with the data from the json file.
+     * @return
+     */
     private TimeService parseTime(MyJsonParser jsonData) {
         MyJsonParser.Time time = jsonData.get_services().get_time();
-        TimeService timeService= new TimeService(time.get_speed(),time.get_duration());
+        TimeService timeService = new TimeService(time.get_speed(), time.get_duration());
         return timeService;
     }
 
     /**
      * args = {
-     *      input : json path,
-     *      output : customers path, output : books path, output : orders path , output : money register path
+     * input : json path,
+     * output : customers path, output : books path, output : orders path , output : money register path
      * }
+     *
      * @param args
      */
     public static void main(String[] args) {
