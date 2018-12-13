@@ -25,17 +25,22 @@ public class ResourceService extends MicroService{
 
 	@Override
 	protected void initialize() {
-        subscribeBroadcast(TerminateBroadcast.class, ev -> {
+		// --- TerminateBroadcast subscription
+		subscribeBroadcast(TerminateBroadcast.class, ev -> {
             terminate();
         });
+
+		// --- CarAcquireEvent subscription
 		subscribeEvent(CarAcquireEvent.class, acqEv ->{
 			Future<DeliveryVehicle> future = ResourcesHolder.getInstance().acquireVehicle();
-			if (future != null){
-				DeliveryVehicle deliveryVehicle = future.get();
-				complete(acqEv,deliveryVehicle);
+			DeliveryVehicle deliveryVehicle = null;
+			if (future != null){	 // there's a micro service which can handle it
+				deliveryVehicle = future.get();	//waits till there's an able vehicle to take
 			}
+			complete(acqEv,deliveryVehicle);
 		});
 
+		// --- ReleaseVehicle subscription
 		subscribeEvent(ReleaseVehicle.class, relEv->{
 			ResourcesHolder.getInstance().releaseVehicle(relEv.get_deliveryVehicle());
 		});

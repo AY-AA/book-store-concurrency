@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
  * Only private methods may be added to this class.
  * No public constructor is allowed except for the empty constructor.
  */
-public class Future<T> extends ReaderWriter<T> {
+public class Future<T> extends ReaderWriter {
 
 	private T _result;
 	private final Object _resultLocker = new Object();

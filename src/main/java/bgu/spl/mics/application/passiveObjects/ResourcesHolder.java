@@ -46,7 +46,7 @@ public class ResourcesHolder {
      * 			{@link DeliveryVehicle} when completed.   
      */
 	public Future<DeliveryVehicle> acquireVehicle() {
-		if (_vehiclesSem == null)	// in case semaphore has not initialized yet
+		if (_vehiclesSem == null || _deliveryVehicles.size() == 0)	// in case semaphore has not initialized yet
 			return null;
 		Future<DeliveryVehicle> future = null;
 		int vehicleIndex = _vehiclesSem.acquire();

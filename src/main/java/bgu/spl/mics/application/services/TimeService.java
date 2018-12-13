@@ -14,7 +14,7 @@ import java.util.TimerTask;
  * all other micro-services about the current time tick using {@link TickBroadcast}.
  * This class may not hold references for objects which it is not responsible for:
  * {@link ResourcesHolder}, {@link MoneyRegister}, {@link Inventory}.
- * 
+ *
  * You can add private fields and public methods to this class.
  * You MAY change constructor signatures and even add new public constructors.
  */
@@ -25,6 +25,11 @@ public class TimeService extends MicroService{
 	private Timer _timer;
 	private int _currTick;
 
+	/**
+	 * TimeService object constructor
+	 * @param speed represents the time to wait between ticks, initializes _speed
+	 * @param duration represents the number of ticks in the program initializes _duration
+	 */
 	public TimeService(int speed, int duration) {
 		super("TimeService");
 		_speed = speed;
@@ -34,24 +39,26 @@ public class TimeService extends MicroService{
 
 	@Override
 	protected void initialize() {
+		// subscription to terminate broadcast
+		// the TimeService actually sends it so it will invoked itself from its message loop
 		subscribeBroadcast(TerminateBroadcast.class, ev ->{
 			terminate();
 		});
 
-        _timer = new Timer();
-        _timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
+		// timer of java invokes the TimeService so it will send tick and terminate broadcast
+		_timer = new Timer();
+		_timer.schedule(new TimerTask() {
+			@Override
+			public void run() {
 				_currTick ++;
-                if (_currTick == _duration) {
+				if (_currTick == _duration) {
 					System.out.println("TIME SERVICE SENDS a TERMINATE MSG");
 					sendBroadcast(new TerminateBroadcast());
-                    _timer.cancel();
-                }
-                else
+					_timer.cancel();
+				}
+				else
 					sendBroadcast(new TickBroadcast(_currTick));
 			}
-        }, _speed, _speed);
+		}, _speed, _speed);
 	}
-
 }

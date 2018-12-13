@@ -18,27 +18,30 @@ import bgu.spl.mics.application.passiveObjects.*;
 
 public class InventoryService extends MicroService{
 
-	private Inventory _inventory;
-
 	public InventoryService(String name) {
 		super(name);
-		_inventory = Inventory.getInstance();
 	}
 
 	@Override
 	protected void initialize() {
-        subscribeBroadcast(TerminateBroadcast.class, ev -> {
+		// --- TerminateBroadcast subscription
+		subscribeBroadcast(TerminateBroadcast.class, ev -> {
             terminate();
         });
 
+		// --- CheckAvailabilityEvent subscription
 		subscribeEvent(CheckAvailabilityEvent.class, check_ev ->{
+			//checks if books is available and gets its price
 			System.out.println(getName() + " CHECKS if " + check_ev.get_bookToOrder() + " is available");
-			int price =_inventory.checkAvailabiltyAndGetPrice(check_ev.get_bookToOrder());
+			int price = Inventory.getInstance().checkAvailabiltyAndGetPrice(check_ev.get_bookToOrder());
 			complete(check_ev,price);
 		});
+
+		// --- TakeBookEvent subscription
 		subscribeEvent(TakeBookEvent.class, take_ev->{
-			System.out.println(getName() + " TAKES " + take_ev.get_bookToOrder());
-			OrderResult res =_inventory.take(take_ev.get_bookToOrder());
+			//takes the book from the inventory
+			System.out.println(getName() + " TAKES " + take_ev.get_book());
+			OrderResult res = Inventory.getInstance().take(take_ev.get_book());
 			complete(take_ev,res);
 		});
 	}

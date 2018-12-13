@@ -18,10 +18,15 @@ import java.util.Vector;
  */
 public class APIService extends MicroService{
 
-    private Customer _customer;
-    private HashMap<Integer, Vector<String>> _booksTicks;
-    private final int _lastOrderTick;
+    private Customer _customer;                             // api's actual customer
+    private HashMap<Integer, Vector<String>> _booksTicks;   // customer's orders ticks
+    private final int _lastOrderTick;                       // customer's last order tick
 
+    /**
+     * APIService constructor
+     * @param customer is the customer which this API object represents
+     * @param booksTicks are the orders ticks
+     */
     public APIService(Customer customer, HashMap<Integer,Vector<String>> booksTicks) {
         super("APIService : " + customer.getId());
         _customer = customer;
@@ -29,6 +34,10 @@ public class APIService extends MicroService{
         _lastOrderTick = findLastTick();
     }
 
+    /**
+     * Finds the last order tick of this API's customer
+     * @return the number of the last order tick
+     */
     private int findLastTick() {
         int max = -1 ;
         for (Integer currTick : _booksTicks.keySet())
@@ -41,24 +50,26 @@ public class APIService extends MicroService{
 
     @Override
     protected void initialize() {
+        // --- TerminateBroadcast subscription
         subscribeBroadcast(TerminateBroadcast.class, ev -> {
             terminate();
         });
 
-
+        // --- TickBroadcast subscription
         subscribeBroadcast(TickBroadcast.class, ev -> {
             Vector<Future<OrderReceipt>> orders = new Vector<>();
-            int currTick = ev.getCurrenTick();
-            if (!_booksTicks.containsKey(currTick))
+            int currTick = ev.getCurrentTick();
+            if (!_booksTicks.containsKey(currTick)) //if there's no order in this tick
                 return;
             Vector<String> books = _booksTicks.get(currTick);
-            for (String currBook : books)
+            for (String currBook : books)   //for each book in the current tick, make an order request
             {
                 System.out.println(getName() + " is BUYING , tick number = " + currTick);
                 Future<OrderReceipt> order = sendEvent(new BookOrderEvent(_customer,currBook));
-                orders.add(order);
-                if (order == null) {
-                    System.out.println("No Micro-Service has registered to handle book order event events");
+                orders.add(order);      // keeps the orders so we can get the results (receipts)
+                if (order == null) { // if there are no micro services that can handle this event
+                    System.out.println("----- NO SELLING SERVICES !!! -----");
+                    return;
                 }
             }
             for (Future<OrderReceipt> future : orders) {
@@ -70,13 +81,17 @@ public class APIService extends MicroService{
                     System.out.println(" ================ " + get_customer().getName() + " DIDNT BUY");
             }
             System.out.println(get_customer().getName() + " FINISHED ordering");
-            if (_lastOrderTick == currTick) {
+            if (_lastOrderTick == currTick) {   //if it is the last customer's order, terminate API
                 System.out.println(get_customer().getName() + " ORDERED for the LAST time");
                 terminate();
             }
         });
     }
 
+    /**
+     * returns the customer held in the API object
+     * @return Customer of this API
+     */
     public Customer get_customer()
     {
         return _customer;

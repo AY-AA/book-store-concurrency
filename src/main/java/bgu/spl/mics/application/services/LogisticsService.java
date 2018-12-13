@@ -13,7 +13,7 @@ import bgu.spl.mics.application.passiveObjects.*;
  * Handles {@link DeliveryEvent}.
  * This class may not hold references for objects which it is not responsible for:
  * {@link ResourcesHolder}, {@link MoneyRegister}, {@link Inventory}.
- * 
+ *
  * You can add private fields and public methods to this class.
  * You MAY change constructor signatures and even add new public constructors.
  */
@@ -25,15 +25,19 @@ public class LogisticsService extends MicroService {
 
 	@Override
 	protected void initialize() {
+		// --- TerminateBroadcast subscription
 		subscribeBroadcast(TerminateBroadcast.class, ev -> {
 			terminate();
 		});
+
+		// --- DeliveryEvent subscription
 		subscribeEvent(DeliveryEvent.class, delEv->{
 			System.out.println(getName() + " got a delivery request");
+			// sends a request to get a vehicle
 			Future<DeliveryVehicle> future = sendEvent(new CarAcquireEvent());
 			if(future != null){
 				DeliveryVehicle deliveryVehicle = future.get();
-				if(deliveryVehicle != null){
+				if(deliveryVehicle != null){	// a vehicle was found and now it delivers the book
 					deliveryVehicle.deliver(delEv.get_address(),delEv.get_distance());
 					System.out.println(getName() + " has completed the delivery and now releasing the vehicle");
 					sendEvent(new ReleaseVehicle(deliveryVehicle));
