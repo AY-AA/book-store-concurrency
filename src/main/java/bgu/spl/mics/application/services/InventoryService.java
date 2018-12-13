@@ -4,8 +4,7 @@ import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.CheckAvailabilityEvent;
 import bgu.spl.mics.application.messages.TakeBookEvent;
 import bgu.spl.mics.application.messages.TerminateBroadcast;
-import bgu.spl.mics.application.passiveObjects.Inventory;
-import bgu.spl.mics.application.passiveObjects.OrderResult;
+import bgu.spl.mics.application.passiveObjects.*;
 
 /**
  * InventoryService is in charge of the book inventory and stock.

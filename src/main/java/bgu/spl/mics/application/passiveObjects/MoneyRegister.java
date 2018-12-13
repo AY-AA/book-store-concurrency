@@ -19,40 +19,40 @@ import java.util.List;
 public class MoneyRegister implements Serializable {
 
 
-    private static class MoneyRegisterHolder {
+	private static class MoneyRegisterHolder {
 		private static MoneyRegister _moneyHolder = new MoneyRegister();
 	}
 
 	private List<OrderReceipt> _ordersList;
 
 	/**
-     * Retrieves the single instance of this class.
-     */
+	 * Retrieves the single instance of this class.
+	 */
 	public static MoneyRegister getInstance() {
 		return MoneyRegisterHolder._moneyHolder;
 	}
 
 	private MoneyRegister()
-    {
-        _ordersList = new ArrayList<>();
-    }
+	{
+		_ordersList = new ArrayList<>();
+	}
 
 	/**
-     * Saves an order receipt in the money register.
-     * <p>   
-     * @param r		The receipt to save in the money register.
-     */
+	 * Saves an order receipt in the money register.
+	 * <p>
+	 * @param r		The receipt to save in the money register.
+	 */
 	public void file (OrderReceipt r) {
 		_ordersList.add(r);
 	}
-	
+
 	/**
-     * Retrieves the current total earnings of the store.  
-     */
+	 * Retrieves the current total earnings of the store.
+	 */
 	public int getTotalEarnings() {
 		int total = 0;
 		for (OrderReceipt order : _ordersList)
-		    total += order.getPrice();
+			total += order.getPrice();
 		return total;
 	}
 
@@ -75,24 +75,20 @@ public class MoneyRegister implements Serializable {
 	}
 
 	/**
-     * Charges the credit card of the customer a certain amount of money.
-     * <p>
-     * @param amount 	amount to charge
-     */
+	 * Charges the credit card of the customer a certain amount of money.
+	 * <p>
+	 * @param amount 	amount to charge
+	 */
 	public void chargeCreditCard(Customer c, int amount) {
-		synchronized (c)
+		int amountLeft = c.getAvailableCreditAmount();
+		while (amountLeft >= amount && !c.charge(amountLeft,amount))
 		{
-			int amountLeft = c.getAvailableCreditAmount();
-			while (amountLeft >= amount && !c.charge(amountLeft,amount))
-			{
-				amountLeft = c.getAvailableCreditAmount();
-			}
-			c.notifyAll();
+			amountLeft = c.getAvailableCreditAmount();
 		}
 	}
 
 	public void printObject(String moneyPath) {
-	    FilePrinter.printToFile(this,moneyPath);
+		FilePrinter.printToFile(this,moneyPath);
 	}
 
 

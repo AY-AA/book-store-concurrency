@@ -31,7 +31,20 @@ public class FutureTest {
     @Test
     public void get()
     {
-        assertNull(_future.get());
+        Object getFromFuture = null;
+        Thread t1 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.currentThread().sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                _future.resolve(new Object ());
+            }
+        });
+        t1.start();
+        assertNotNull(_future.get());
     }
 
     /**
@@ -64,12 +77,21 @@ public class FutureTest {
      *  checks if future object has been resolved.
      */
     @Test
-    public void isDone()
+    public void isDoneFalse()
     {
-        Object resultOfFuture = _future.get();
-        boolean hasResult = resultOfFuture != null;
-        assertEquals(hasResult,_future.isDone());
+        assertEquals(false,_future.isDone());
     }
+
+    /**
+     *  checks if future object has been resolved.
+     */
+    @Test
+    public void isDoneTrue()
+    {
+        _future.resolve(new Object());
+        assertEquals(true,_future.isDone());
+    }
+
 
     /**
      * checks what future object returns according to two scenarios
@@ -77,27 +99,34 @@ public class FutureTest {
      * second is when a future object does not hold a result and the waiting time passed, the result must to be null.
      */
     @Test
-    public void getWithTimeArgue()
+    public void getWithTimeArgueBeforeTimePassed()
     {
 
-        // 5 seconds will be converted into seconds in get function of Future object
-        long timeoutSeconds = 5L;
-        TimeUnit unit = TimeUnit.SECONDS;
+        Object getFromFuture = null;
+        Thread t1 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.currentThread().sleep(3000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                _future.resolve(new Object ());
+            }
+        });
+        t1.start();
+        assertNotNull(_future.get(5,TimeUnit.SECONDS));
+    }
+    /**
+     * checks what future object returns according to two scenarios
+     * first is when a future object holds a result, it will be returned before the expected time
+     * second is when a future object does not hold a result and the waiting time passed, the result must to be null.
+     */
+    @Test
+    public void getWithTimeArgueAfterTimePassed()
+    {
 
-        // current time
-        long startTime = System.currentTimeMillis();
-
-        Object result = _future.get(timeoutSeconds,unit);
-
-        // elapsed time
-        long elapsedTime = System.currentTimeMillis()-startTime;
-
-        // the actual time 'get' function does its calculation
-        long givenTime = TimeUnit.SECONDS.convert(timeoutSeconds, TimeUnit.SECONDS);
-
-        if (elapsedTime < givenTime)
-            assertNotNull(result);
-        else
-            assertNull(result);
+        Object getFromFuture = null;
+        assertNull(_future.get(2,TimeUnit.SECONDS));
     }
 }

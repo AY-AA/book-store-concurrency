@@ -51,7 +51,7 @@ public class JSONML {
     ) throws JSONException {
         String     attribute;
         char       c;
-        String     closeTag = null;
+        String     closeTag;
         int        i;
         JSONArray  newja = null;
         JSONObject newjo = null;

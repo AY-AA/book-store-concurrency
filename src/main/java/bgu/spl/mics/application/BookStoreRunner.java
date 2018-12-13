@@ -262,10 +262,17 @@ public class BookStoreRunner {
         System.out.println("--- PROGRAM STARTED ---");
 
         String inputFile = System.getProperty("user.dir");
-        String[] a = {inputFile + "/src/input.json",inputFile + "/customers.txt",inputFile + "/books.txt",inputFile + "/orders.txt",inputFile + "/moneyRegister.txt"};
-        BookStoreRunner bookStore = new BookStoreRunner(a);
+//        String[] a = {inputFile + "/input.json",inputFile + "/customers.txt",inputFile + "/books.txt",inputFile + "/orders.txt",inputFile + "/moneyRegister.txt"};
+        String[] a = {"/home/alex/Desktop/self_testing/testingFolder/jsonFiles/1.json",
+                "/home/alex/Desktop/self_testing/student/assi./test_results/test_1/customers.obj",
+                "/home/alex/Desktop/self_testing/student/assi./test_results/test_1/inventory.obj",
+                "/home/alex/Desktop/self_testing/student/assi./test_results/test_1/orders.obj",
+                "/home/alex/Desktop/self_testing/student/assi./test_results/test_1/moneyReg.obj"
+                ,"1"};
 
-//        BookStoreRunner bookStore = new BookStoreRunner(args);
+//         new BookStoreRunner(a);
+
+        new BookStoreRunner(args);
 
 
     }
