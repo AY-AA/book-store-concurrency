@@ -75,6 +75,12 @@ public class ResourcesHolder {
 	 * @param vehicle	{@link DeliveryVehicle} to be released.
 	 */
 	public void releaseVehicle(DeliveryVehicle vehicle) {
+	    if (vehicle == null)
+        {
+            for (Future future : _futures)
+                future.resolve(null);
+            return;
+        }
 		if (_futures.isEmpty()) {
 			int index = _deliveryVehicles.indexOf(vehicle);
 			_vehiclesSem.release(index);

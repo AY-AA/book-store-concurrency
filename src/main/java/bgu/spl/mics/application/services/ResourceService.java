@@ -30,7 +30,8 @@ public class ResourceService extends MicroService{
 	protected void initialize() {
 		// --- TerminateBroadcast subscription
 		subscribeBroadcast(TerminateBroadcast.class, ev -> {
-			terminate();
+            ResourcesHolder.getInstance().releaseVehicle(null);
+            terminate();
 		});
 
 		// --- CarAcquireEvent subscription
