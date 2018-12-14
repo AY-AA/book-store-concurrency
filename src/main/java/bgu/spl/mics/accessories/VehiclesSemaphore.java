@@ -1,5 +1,7 @@
 package bgu.spl.mics.accessories;
 
+import bgu.spl.mics.Future;
+
 /**
  * Class used as a semaphore for acquiring and releasing vehicles.
  */
@@ -60,10 +62,11 @@ public class VehiclesSemaphore {
      * Method for trying to acquire a vehicle.
      * return boolean as an answer if there is an available vehicle.
      */
-    public synchronized boolean tryAcquire() {
+    public synchronized boolean tryAcquire(Future<Integer> future) {
         if (_free == 0)
             return false;
-        _free--;
+        int index = acquire();
+        future.resolve(index);
         return true;
     }
 

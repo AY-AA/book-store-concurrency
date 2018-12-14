@@ -7,6 +7,8 @@ import bgu.spl.mics.application.messages.ReleaseVehicle;
 import bgu.spl.mics.application.messages.TerminateBroadcast;
 import bgu.spl.mics.application.passiveObjects.*;
 
+import java.util.Vector;
+
 
 /**
  * ResourceService is in charge of the store resources - the delivery vehicles.
@@ -18,6 +20,7 @@ import bgu.spl.mics.application.passiveObjects.*;
  * You MAY change constructor signatures and even add new public constructors.
  */
 public class ResourceService extends MicroService{
+
 
 	public ResourceService(String name) {
 		super(name);
@@ -32,17 +35,13 @@ public class ResourceService extends MicroService{
 
 		// --- CarAcquireEvent subscription
 		subscribeEvent(CarAcquireEvent.class, acqEv ->{
-			Future<DeliveryVehicle> future = ResourcesHolder.getInstance().acquireVehicle();
-			DeliveryVehicle deliveryVehicle = null;
-			if (future != null){	 // there's a micro service which can handle it
-				deliveryVehicle = future.get();	//waits till there's an able vehicle to take
-			}
-			complete(acqEv,deliveryVehicle);
+            Future<DeliveryVehicle> future = ResourcesHolder.getInstance().acquireVehicle();
+            complete(acqEv,future);
 		});
 
 		// --- ReleaseVehicle subscription
 		subscribeEvent(ReleaseVehicle.class, relEv->{
 			ResourcesHolder.getInstance().releaseVehicle(relEv.get_deliveryVehicle());
-		});
+        });
 	}
 }

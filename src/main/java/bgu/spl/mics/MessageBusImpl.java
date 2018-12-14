@@ -31,7 +31,7 @@ public class MessageBusImpl implements MessageBus {
 
     // this hash map represents messages as keys
     // and the value of each message is the future object represents the result might become out of the event
-    private HashMap<Message,Future> _messagesAndFutures;
+    private ConcurrentHashMap<Message,Future> _messagesAndFutures;
 
     // this hash map represents messages as keys
     // and the value of each message is the last index of micro service that got the message
@@ -47,7 +47,7 @@ public class MessageBusImpl implements MessageBus {
         _messagesQueues = new ConcurrentHashMap<>();
         _eventSubscriptions = new ConcurrentHashMap<>();
         _broadcastSubscriptions = new ConcurrentHashMap<>();
-        _messagesAndFutures = new HashMap<>();
+        _messagesAndFutures = new ConcurrentHashMap<>();
         _roundRobinNum = new HashMap<>();
     }
 
@@ -127,15 +127,17 @@ public class MessageBusImpl implements MessageBus {
         LinkedBlockingQueue<Message> mQueue = _messagesQueues.get(m);
         if (mQueue == null)
             return null;
-
-        Future<T> future = new Future<>();
-        try {
-            mQueue.put(e);
-        } catch (InterruptedException e1) {
-            e1.printStackTrace();
+        synchronized (mQueue) {
+            Future<T> future = new Future<>();
+            _messagesAndFutures.put(e, future);
+            try {
+                mQueue.put(e);
+            } catch (InterruptedException e1) {
+                e1.printStackTrace();
+            }
+            mQueue.notifyAll();
+            return future;
         }
-        _messagesAndFutures.put(e,future);
-        return future;
     }
 
 

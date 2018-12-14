@@ -12,15 +12,17 @@ public class BookOrderEvent implements Event<OrderReceipt> {
 
     private Customer _customer;         // customer which tries to make an order
     private String _bookToOrderTitle;   // book's title
+    private int _orderTick;
 
     /**
      * BookOrderEvent constructor
      * @param customer is the customer tries to order the {@param title} book
      * @param title is the title of the book {@param customer} tries to order
      */
-    public BookOrderEvent(Customer customer, String title){
+    public BookOrderEvent(Customer customer, String title, int orderTick){
         _bookToOrderTitle = title;
         _customer = customer;
+        _orderTick = orderTick;
     }
 
     /**
@@ -39,5 +41,9 @@ public class BookOrderEvent implements Event<OrderReceipt> {
         return _bookToOrderTitle;
     }
 
+
+    public int get_orderTick(){
+        return _orderTick;
+    }
 }
 

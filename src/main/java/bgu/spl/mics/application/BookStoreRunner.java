@@ -202,15 +202,15 @@ public class BookStoreRunner {
         }
         services = numOfServices[1];
         for (int j = 0; j < services; j++) {
-            _microServices.add(new InventoryService("InventorySerivce " + j));
+            _microServices.add(new InventoryService("InventoryService " + j));
         }
         services = numOfServices[2];
         for (int j = 0; j < services; j++) {
-            _microServices.add(new LogisticsService("LogisticsSerivce " + j));
+            _microServices.add(new LogisticsService("LogisticsService " + j));
         }
         services = numOfServices[3];
         for (int j = 0; j < services; j++) {
-            _microServices.add(new ResourceService("ResourcesSerivce " + j));
+            _microServices.add(new ResourceService("ResourcesService " + j));
         }
     }
 

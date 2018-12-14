@@ -64,7 +64,7 @@ public class APIService extends MicroService{
             Vector<String> books = _booksTicks.get(currTick);
             for (String currBook : books)   //for each book in the current tick, make an order request
             {
-                Future<OrderReceipt> order = sendEvent(new BookOrderEvent(_customer,currBook));
+                Future<OrderReceipt> order = sendEvent(new BookOrderEvent(_customer,currBook,currTick));
                 orders.add(order);      // keeps the orders so we can get the results (receipts)
                 if (order == null) { // if there are no micro services that can handle this event
                     return;
@@ -72,7 +72,9 @@ public class APIService extends MicroService{
             }
             for (Future<OrderReceipt> future : orders) {
                 OrderReceipt oR = future.get();
-                _customer.takeReceipt(oR);
+                if (oR != null) {
+                    _customer.takeReceipt(oR);
+                }
             }
             if (_lastOrderTick == currTick) {   //if it is the last customer's order, terminate API
                 terminate();

@@ -17,7 +17,7 @@ import bgu.spl.mics.application.passiveObjects.*;
  */
 public class SellingService extends MicroService {
 
-    private int _currTick,_orderTick,_issuedTick;
+    private int _currTick;
 
     public SellingService(String name) {
         super(name);
@@ -37,38 +37,30 @@ public class SellingService extends MicroService {
 
         // --- BookOrderEvent subscription
         subscribeEvent(BookOrderEvent.class, ev -> {
-            _orderTick = _currTick;                 //order tick update
+            int orderTick = ev.get_orderTick();
+            OrderReceipt orderReceipt = null;
             // checks if book is available
             Future<Integer> isAvailable = sendEvent(new CheckAvailabilityEvent(ev.get_bookToOrderTitle()));
             if (isAvailable != null) {              // there's a micro service which can handle it
                 Integer price = isAvailable.get();  //waits until resolved and then gets price
-                if (price == -1) {                  //books is not found
-                    complete(ev,null);
-                    return;
-                }
-                if (price <= ev.get_customer().getAvailableCreditAmount()) {    // customer can buy it - has money
+                if (price > -1 && price <= ev.get_customer().getAvailableCreditAmount()) {    // customer has enough money
                     // tries to take the book from the inventory using other micro services
                     Future<OrderResult> isTaken = sendEvent(new TakeBookEvent(ev.get_bookToOrderTitle()));
-                    if (isTaken != null) {  // there's a micro service which can handle it
-                        OrderResult taken = isTaken.get();  //waits until resolved and then gets receipt
-                        OrderReceipt orderReceipt = null;
-                        if (taken == OrderResult.SUCCESSFULLY_TAKEN) {  //if taken, charge customer
-                            MoneyRegister.getInstance().chargeCreditCard(ev.get_customer(),price);
-                            String address = ev.get_customer().getAddress();
-                            int distance = ev.get_customer().getDistance();
-                            sendEvent(new DeliveryEvent(address,distance));
-                            _issuedTick = _currTick;
-                            orderReceipt = createReceipt(ev.get_customer(),ev.get_bookToOrderTitle(),price,_issuedTick,_orderTick);
-                            MoneyRegister.getInstance().file(orderReceipt);
-                        }
-                        complete(ev,orderReceipt);   //whether it was bought or not, complete invokes the customer from waiting
+                    if (isTaken != null && isTaken.get() == OrderResult.SUCCESSFULLY_TAKEN) {   // there's a micro service which can handle it
+                        chargeAndSend(ev.get_customer(), price);                                // and it was successfully taken
+                        orderReceipt = createReceiptAndFileOrder(ev.get_customer(),ev.get_bookToOrderTitle(),price,Math.max(_currTick,orderTick),orderTick);
                     }
                 }
-                else {      // if customer has no money, invoke customer from waiting
-                    complete(ev,null);
-                }
             }
+            complete(ev,orderReceipt);   //whether it was bought or not, complete invokes the customer from waiting
         });
+    }
+
+    private void chargeAndSend(Customer customer, Integer price) {
+        MoneyRegister.getInstance().chargeCreditCard(customer,price);
+        String address = customer.getAddress();
+        int distance = customer.getDistance();
+        sendEvent(new DeliveryEvent(address,distance));
     }
 
     /**
@@ -80,7 +72,7 @@ public class SellingService extends MicroService {
      * @param orderProcessTick is the time when the order was made
      * @return an object typed OrderReceipt holds all the information above
      */
-    private OrderReceipt createReceipt(Customer c, String bookTitle, int bookPrice,int issuedTick,int orderProcessTick){
+    private OrderReceipt createReceiptAndFileOrder(Customer c, String bookTitle, int bookPrice,int issuedTick,int orderProcessTick){
         String seller = this.getName();
         int customerId = c.getId();
         String _bookTitle = bookTitle;
@@ -89,6 +81,7 @@ public class SellingService extends MicroService {
         int tOrderTick = orderProcessTick;
         int processTick = orderProcessTick;
         OrderReceipt orderReceipt = new OrderReceipt(0,seller,customerId,_bookTitle,_bookPrice,tIssuedTick,tOrderTick,processTick);
+        MoneyRegister.getInstance().file(orderReceipt);
         return orderReceipt;
     }
 }

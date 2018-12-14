@@ -80,7 +80,6 @@ public class Inventory {
 		BookInventoryInfo bookObject = _bookInventoryInfo.get(book);
 		if (bookObject != null && bookObject.getAmountInInventory() > 0)
 			return bookObject.getPrice();
-
 		return -1;
 	}
 

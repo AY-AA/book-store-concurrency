@@ -6,6 +6,9 @@ import bgu.spl.mics.Future;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Vector;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Passive object representing the resource manager.
@@ -32,9 +35,11 @@ public class ResourcesHolder {
 	// A collection of delivery vehicles
 	private List<DeliveryVehicle> _deliveryVehicles;
 	private VehiclesSemaphore _vehiclesSem;
+	// A queue of futures waiting to get resolved with a vehicle
+	private LinkedBlockingQueue<Future<DeliveryVehicle>> _futures;
 
 	private ResourcesHolder(){
-
+		_futures = new LinkedBlockingQueue<>();
 		_deliveryVehicles = new ArrayList<>();
 	}
 
@@ -48,11 +53,17 @@ public class ResourcesHolder {
 	public Future<DeliveryVehicle> acquireVehicle() {
 		if (_vehiclesSem == null || _deliveryVehicles.size() == 0)	// in case semaphore has not initialized yet
 			return null;
-		Future<DeliveryVehicle> future = null;
-		int vehicleIndex = _vehiclesSem.acquire();
-		if(vehicleIndex != -1){
-			future = new Future<>();
-			future.resolve(_deliveryVehicles.get(vehicleIndex));
+		Future<DeliveryVehicle> future = new Future<>();
+		Future<Integer> tryAcquireFuture = new Future<>();
+		boolean canAcquired = _vehiclesSem.tryAcquire(tryAcquireFuture);
+		if (canAcquired)    // if can acquire, acquire and resolve
+			future.resolve(_deliveryVehicles.get(tryAcquireFuture.get()));
+		else {
+			try {
+				_futures.put(future);
+			} catch (InterruptedException e) {
+				Thread.currentThread().isInterrupted();
+			}
 		}
 		return future;
 	}
@@ -64,8 +75,18 @@ public class ResourcesHolder {
 	 * @param vehicle	{@link DeliveryVehicle} to be released.
 	 */
 	public void releaseVehicle(DeliveryVehicle vehicle) {
-		int index = _deliveryVehicles.indexOf(vehicle);
-		_vehiclesSem.release(index);
+		if (_futures.isEmpty()) {
+			int index = _deliveryVehicles.indexOf(vehicle);
+			_vehiclesSem.release(index);
+		}
+		else{
+			try {   // resolve the first one in the queue
+				Future f = _futures.take();
+				f.resolve(vehicle);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 	/**
