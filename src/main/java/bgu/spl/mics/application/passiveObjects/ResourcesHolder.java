@@ -51,12 +51,12 @@ public class ResourcesHolder {
 	 * 			{@link DeliveryVehicle} when completed.
 	 */
 	public Future<DeliveryVehicle> acquireVehicle() {
-		if (_vehiclesSem == null || _deliveryVehicles.size() == 0)	// in case semaphore has not initialized yet
+		if (_vehiclesSem == null || _deliveryVehicles.size() == 0)	// in case semaphore has not initialized yet or there are no cars
 			return null;
 		Future<DeliveryVehicle> future = new Future<>();
 		Future<Integer> tryAcquireFuture = new Future<>();
-		boolean canAcquired = _vehiclesSem.tryAcquire(tryAcquireFuture);
-		if (canAcquired)    // if can acquire, acquire and resolve
+		boolean canBeAcquired = _vehiclesSem.tryAcquire(tryAcquireFuture);
+		if (canBeAcquired)    // if can acquire, acquire and resolve
 			future.resolve(_deliveryVehicles.get(tryAcquireFuture.get()));
 		else {
 			try {
@@ -76,7 +76,7 @@ public class ResourcesHolder {
 	 */
 	public void releaseVehicle(DeliveryVehicle vehicle) {
 	    if (vehicle == null)
-        {
+        {   // invoke all waiting logistics because the program terminates
             for (Future future : _futures)
                 future.resolve(null);
             return;

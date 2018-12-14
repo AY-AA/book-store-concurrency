@@ -194,6 +194,16 @@ public class MessageBusImpl implements MessageBus {
                 currVector.notifyAll();
             }
         }
+        safeRemove(m);
+    }
+
+    private void safeRemove(MicroService m) {
+        for (Message message : _messagesQueues.get(m)){
+            if (_messagesAndFutures.values().contains(message)) {
+                _messagesAndFutures.get(message).resolve(null);
+                System.out.println("reached here");
+            }
+        }
         _messagesQueues.remove(m);
     }
 
