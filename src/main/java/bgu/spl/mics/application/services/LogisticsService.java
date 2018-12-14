@@ -38,10 +38,13 @@ public class LogisticsService extends MicroService {
                 Future<DeliveryVehicle> futureOfDelivery = future.get();    // this future will be always resolved
                 if (futureOfDelivery == null)
                     return;
+                System.out.println("BEFORE GET " + Thread.currentThread().getName());
                 DeliveryVehicle deliveryVehicle = futureOfDelivery.get();   // this future holds the vehicle and will be resolved once there's a free vehicle
+                System.out.println("AFTER GET " + Thread.currentThread().getName());
                 if(deliveryVehicle != null){	// a vehicle was found and now it delivers the book
                     deliveryVehicle.deliver(delEv.get_address(),delEv.get_distance());
                     sendEvent(new ReleaseVehicle(deliveryVehicle));
+                    System.out.println("Finished delivery " + Thread.currentThread().getName());
                 }
             }
         });

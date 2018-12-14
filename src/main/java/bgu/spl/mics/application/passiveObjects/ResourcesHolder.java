@@ -2,11 +2,10 @@ package bgu.spl.mics.application.passiveObjects;
 
 import bgu.spl.mics.accessories.VehiclesSemaphore;
 import bgu.spl.mics.Future;
+import com.sun.jmx.remote.internal.ArrayQueue;
+import sun.util.resources.cldr.fur.CalendarData_fur_IT;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Vector;
+import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -33,14 +32,14 @@ public class ResourcesHolder {
 	}
 
 	// A collection of delivery vehicles
-	private List<DeliveryVehicle> _deliveryVehicles;
-	private VehiclesSemaphore _vehiclesSem;
+	private LinkedList<DeliveryVehicle> _deliveryVehicles;
+
 	// A queue of futures waiting to get resolved with a vehicle
-	private LinkedBlockingQueue<Future<DeliveryVehicle>> _futures;
+	private LinkedList<Future<DeliveryVehicle>> _futures;
 
 	private ResourcesHolder(){
-		_futures = new LinkedBlockingQueue<>();
-		_deliveryVehicles = new ArrayList<>();
+		_futures = new LinkedList<>();
+		_deliveryVehicles = new LinkedList<>();
 	}
 
 	/**
@@ -51,18 +50,21 @@ public class ResourcesHolder {
 	 * 			{@link DeliveryVehicle} when completed.
 	 */
 	public Future<DeliveryVehicle> acquireVehicle() {
-		if (_vehiclesSem == null || _deliveryVehicles.size() == 0)	// in case semaphore has not initialized yet or there are no cars
+		if (_deliveryVehicles == null)	// if we have no cars at all
 			return null;
 		Future<DeliveryVehicle> future = new Future<>();
-		Future<Integer> tryAcquireFuture = new Future<>();
-		boolean canBeAcquired = _vehiclesSem.tryAcquire(tryAcquireFuture);
-		if (canBeAcquired)    // if can acquire, acquire and resolve
-			future.resolve(_deliveryVehicles.get(tryAcquireFuture.get()));
-		else {
-			try {
-				_futures.put(future);
-			} catch (InterruptedException e) {
-				Thread.currentThread().isInterrupted();
+		_futures.add(future);			// at first, we add the future to futures list,
+										// maybe there's a thread running in release method and can handle it
+		DeliveryVehicle canBeAcquired = _deliveryVehicles.poll();	//we take the first car in the queue
+		if (canBeAcquired != null) {    // if there's a car it wouldn't be not null
+			synchronized (future) {		// if another tread resolved this future (in release), we wait
+				if (future.isDone()) {  // otherwise, we resolve the future and the other thread, if there's one, will wait
+					_deliveryVehicles.add(canBeAcquired);	// if it was handled, we add back 'canBeAcquired' to the queue
+				}
+				else {										// else, we resolve it and remove from futures queue
+					future.resolve(canBeAcquired);
+					_futures.remove(future);
+				}
 			}
 		}
 		return future;
@@ -75,23 +77,28 @@ public class ResourcesHolder {
 	 * @param vehicle	{@link DeliveryVehicle} to be released.
 	 */
 	public void releaseVehicle(DeliveryVehicle vehicle) {
-	    if (vehicle == null)
-        {   // invoke all waiting logistics because the program terminates
-            for (Future future : _futures)
-                future.resolve(null);
-            return;
-        }
-		if (_futures.isEmpty()) {
-			int index = _deliveryVehicles.indexOf(vehicle);
-			_vehiclesSem.release(index);
-		}
-		else{
-			try {   // resolve the first one in the queue
-				Future f = _futures.take();
-				f.resolve(vehicle);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+		if (vehicle == null) {   // invoke all waiting logistics because the program terminates
+			for (Future future : _futures) {
+				future.resolve(null);
 			}
+			return;
+		}
+		// a flag to determine whether the current thread will resolve a future or not
+		boolean resolved = false;
+		for (Future future : _futures){
+			synchronized (future)		// if there's a thread running in acquire with the same future
+			{							// it locks it so the other thread will get a resolved one
+				if (_futures.contains(future))	// this contains check indicates whether a certain
+				{								// future was resolved (in acquire) while current thread was waiting
+					_futures.remove(future);
+					future.resolve(vehicle);
+					resolved = true;
+				}
+			}
+		}
+		if (!resolved)	//push vehicle in vehicles list because there's no future waiting to get resolved
+		{
+			_deliveryVehicles.add(vehicle);
 		}
 	}
 
@@ -102,7 +109,7 @@ public class ResourcesHolder {
 	 */
 	public void load(DeliveryVehicle[] vehicles) {
 		_deliveryVehicles.addAll(Arrays.asList(vehicles));
-		_vehiclesSem = new VehiclesSemaphore(_deliveryVehicles.size());
+		if (_deliveryVehicles.size() == 0)
+			_deliveryVehicles = null;
 	}
-
 }

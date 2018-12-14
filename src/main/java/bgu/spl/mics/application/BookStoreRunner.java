@@ -288,10 +288,10 @@ public class BookStoreRunner {
 
         String inputFile = System.getProperty("user.dir");
         String[] a = {inputFile + "/input.json",
-                inputFile + "/customers.txt",
-                inputFile + "/books.txt",
-                inputFile + "/orders.txt",
-                inputFile + "/moneyRegister.txt"};
+                inputFile + "/customers.obj",
+                inputFile + "/books.obj",
+                inputFile + "/orders.obj",
+                inputFile + "/moneyRegister.obj"};
 
         new BookStoreRunner(a);
 

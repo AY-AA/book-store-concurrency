@@ -45,7 +45,6 @@ public class DeliveryVehicle {
 	 * @param distance	The distance from the store to the customer.
 	 */
 	public void deliver(String address, int distance) {
-		// calculation of time needed to arrive, we like physics
 		long timeToSleep = distance * _speed;
 
 		try {   // thread goes to sleep -- simulates a delivery
