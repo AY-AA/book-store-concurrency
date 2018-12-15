@@ -3,6 +3,9 @@ package bgu.spl.mics.application.passiveObjects;
 
 import bgu.spl.mics.accessories.FilePrinter;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -81,7 +84,7 @@ public class MoneyRegister implements Serializable {
 	 */
 	public void chargeCreditCard(Customer c, int amount) {
 		int amountLeft = c.getAvailableCreditAmount();
-		while (amountLeft >= amount && !c.charge(amountLeft,amount))
+		while (!c.charge(amountLeft,amount))
 		{
 			amountLeft = c.getAvailableCreditAmount();
 		}
@@ -92,4 +95,20 @@ public class MoneyRegister implements Serializable {
 	}
 
 
+	private void readObject(ObjectInputStream aInputStream) throws ClassNotFoundException, IOException
+	{
+		_ordersList = (List) aInputStream.readObject();
+	}
+
+	private void writeObject(ObjectOutputStream aOutputStream) throws IOException
+	{
+		aOutputStream.writeObject(_ordersList);
+	}
+
+
+	//TODO: REMOVE!!!
+	public void refresh()
+	{
+		_ordersList = new ArrayList<>();
+	}
 }

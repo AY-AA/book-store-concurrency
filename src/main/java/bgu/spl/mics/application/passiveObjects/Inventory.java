@@ -3,6 +3,7 @@ package bgu.spl.mics.application.passiveObjects;
 
 import bgu.spl.mics.accessories.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -100,6 +101,9 @@ public class Inventory {
 		}
 		FilePrinter.printToFile(inventoryToFile,filename);
 	}
+
+
+
 
 }
 

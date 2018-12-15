@@ -43,21 +43,30 @@ public class SellingService extends MicroService {
             Future<Integer> isAvailable = sendEvent(new CheckAvailabilityEvent(ev.get_bookToOrderTitle()));
             if (isAvailable != null) {              // there's a micro service which can handle it
                 Integer price = isAvailable.get();  //waits until resolved and then gets price
-                if (price > -1 && price <= ev.get_customer().getAvailableCreditAmount()) {    // customer has enough money
-                    // tries to take the book from the inventory using other micro services
-                    Future<OrderResult> isTaken = sendEvent(new TakeBookEvent(ev.get_bookToOrderTitle()));
-                    if (isTaken != null && isTaken.get() == OrderResult.SUCCESSFULLY_TAKEN) {   // there's a micro service which can handle it
-                        chargeAndSend(ev.get_customer(), price);                                // and it was successfully taken
-                        orderReceipt = createReceiptAndFileOrder(ev.get_customer(),ev.get_bookToOrderTitle(),price,Math.max(_currTick,orderTick),orderTick);
+                if (price != -1 ) {
+                    boolean refund = false;
+                    synchronized (ev.get_customer()) {
+                        MoneyRegister.getInstance().chargeCreditCard(ev.get_customer(), price);
+                        refund = !(0 <= ev.get_customer().getAvailableCreditAmount());
                     }
+                    if (!refund) { // customer has enough money
+                        // tries to take the book from the inventory using other micro services
+                        Future<OrderResult> isTaken = sendEvent(new TakeBookEvent(ev.get_bookToOrderTitle()));
+                        if (isTaken != null && isTaken.get() == OrderResult.SUCCESSFULLY_TAKEN) {   // there's a micro service which can handle it
+                            sendBook(ev.get_customer(), price);                                // and it was successfully taken
+                            orderReceipt = createReceiptAndFileOrder(ev.get_customer(), ev.get_bookToOrderTitle(), price, Math.max(_currTick, orderTick), orderTick);
+                        } else if (isTaken.get() == OrderResult.NOT_IN_STOCK)
+                            refund = true;
+                    }
+                    if (refund)
+                        MoneyRegister.getInstance().chargeCreditCard(ev.get_customer(), -1 * price);
                 }
             }
             complete(ev,orderReceipt);   //whether it was bought or not, complete invokes the customer from waiting
         });
     }
 
-    private void chargeAndSend(Customer customer, Integer price) {
-        MoneyRegister.getInstance().chargeCreditCard(customer,price);
+    private void sendBook(Customer customer, Integer price) {
         String address = customer.getAddress();
         int distance = customer.getDistance();
         sendEvent(new DeliveryEvent(address,distance));

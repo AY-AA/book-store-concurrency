@@ -7,10 +7,8 @@ import bgu.spl.mics.application.passiveObjects.*;
 import bgu.spl.mics.application.services.*;
 import com.google.gson.*;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.util.HashMap;
-import java.util.Vector;
+import java.io.*;
+import java.util.*;
 
 /**
  * This is the Main class of the application. You should parse the input file,
@@ -31,39 +29,43 @@ public class BookStoreRunner {
         _microServices = new Vector<>();
         _customers = new HashMap<>();
         parseJSONAndLoad(paths[0]);
-        startThreads();
+        startThreadsAndJoin();
         printToFiles(paths);
+//        tmpFunc(paths);
+
     }
 
     /**
      * Method responsible for printing object to file using serialization.
      *
-     * @param paths String array containing details the paths for the object which need to be written to file.
+     * @param args String array containing details the paths for the object which need to be written to file.
      */
-    private void printToFiles(String[] paths) {
-        FilePrinter.printToFile(_customers, paths[1]);
-        Inventory.getInstance().printInventoryToFile(paths[2]);
-        MoneyRegister.getInstance().printOrderReceipts(paths[3]);
-        MoneyRegister.getInstance().printObject(paths[4]);
-
+    private void printToFiles(String[] args) {
+        FilePrinter.printToFile(_customers, args[1]);
+        Inventory.getInstance().printInventoryToFile(args[2]);
+        MoneyRegister.getInstance().printOrderReceipts(args[3]);
+        MoneyRegister.getInstance().printObject(args[4]);
     }
+
+
 
     /**
      * Assisting method responsible for initiating the threads.
      * cycling through the microServices data structure and starting each one of them.
      */
-    private void startThreads() {
-        MicroService timeService = _microServices.lastElement();
+    private void startThreadsAndJoin() {
+        ArrayList<Thread> threads = new ArrayList<>();
         for (MicroService microService : _microServices) {
             Thread thread = new Thread(microService);
             thread.setName(microService.getName());
+            threads.add(thread);
             thread.start();
-            if (microService == timeService) {
-                try {
-                    thread.join();
-                } catch (InterruptedException e) {
-                    return;
-                }
+        }
+        for (Thread thread : threads) {
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+                return;
             }
         }
     }
@@ -285,18 +287,20 @@ public class BookStoreRunner {
      * @param args
      */
     public static void main(String[] args) {
-
-        String inputFile = System.getProperty("user.dir");
-        String[] a = {inputFile + "/input.json",
-                inputFile + "/customers.obj",
-                inputFile + "/books.obj",
-                inputFile + "/orders.obj",
-                inputFile + "/moneyRegister.obj"};
-
-        new BookStoreRunner(a);
-
-//        new BookStoreRunner(args);
-
-
+        new BookStoreRunner(args);
     }
+
+    public static void Print(String str, String filename) {
+        try {
+            try (PrintStream out = new PrintStream(new FileOutputStream(filename))) {
+                out.print(str);
+            }
+        } catch (IOException e) {
+            System.out.println("Exception: " + e.getClass().getSimpleName());
+        }
+    }
+
+
+
+
 }

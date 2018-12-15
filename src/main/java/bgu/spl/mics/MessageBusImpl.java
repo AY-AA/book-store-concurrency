@@ -1,9 +1,11 @@
 package bgu.spl.mics;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * The {@link MessageBusImpl class is the implementation of the MessageBus interface.
@@ -23,11 +25,11 @@ public class MessageBusImpl implements MessageBus {
 
     // this hash map represents events as keys
     // and the value of each event is the array list which holds all micro services subscribed to a certain event
-    private final ConcurrentHashMap<Class,Vector<MicroService> > _eventSubscriptions;
+    private final ConcurrentHashMap<Class, ArrayList<MicroService>> _eventSubscriptions;
 
     // this hash map represents broadcasts as keys
     // and the value of each broadcast is the array list which holds all micro services subscribed to a certain broadcast
-    private final ConcurrentHashMap<Class,Vector<MicroService> >_broadcastSubscriptions;
+    private final ConcurrentHashMap<Class,ArrayList<MicroService> >_broadcastSubscriptions;
 
     // this hash map represents messages as keys
     // and the value of each message is the future object represents the result might become out of the event
@@ -35,7 +37,7 @@ public class MessageBusImpl implements MessageBus {
 
     // this hash map represents messages as keys
     // and the value of each message is the last index of micro service that got the message
-    private HashMap<Class,Integer> _roundRobinNum;
+    private HashMap<Class, AtomicInteger> _roundRobinNum;
 
     public static MessageBusImpl getInstance()
     {
@@ -54,35 +56,32 @@ public class MessageBusImpl implements MessageBus {
     @Override
     public <T> void subscribeEvent(Class<? extends Event<T>> type, MicroService m)
     {
-        synchronized (_eventSubscriptions) {
-            // if micro service is not registered, return
-            if (!_messagesQueues.containsKey(m) || _messagesQueues.get(m) == null)
+        synchronized (_eventSubscriptions){
+            if (!_messagesQueues.keySet().contains(m) || _messagesQueues.get(m) == null) {
+                System.out.println(" event subscribtion failed");
                 return;
-            // if event does not exist, add it
-            if (!_eventSubscriptions.containsKey(type)) {
-                _eventSubscriptions.put(type, new Vector<>());
-                _roundRobinNum.put(type, 0);
             }
+            if (!_eventSubscriptions.keySet().contains(type)){
+                _eventSubscriptions.put(type, new ArrayList<>());
+                _roundRobinNum.put(type,new AtomicInteger(0));
+            }
+            _eventSubscriptions.get(type).add(m);
         }
-        // subscribe m to the event
-        _eventSubscriptions.get(type).add(m);
     }
 
     @Override
     public void subscribeBroadcast(Class<? extends Broadcast> type, MicroService m)
     {
-        synchronized(_broadcastSubscriptions) {
-            // if micro service is not registered, return
-            if (!_messagesQueues.containsKey(m) || _messagesQueues.get(m) == null)
+        synchronized (_broadcastSubscriptions){
+            if (!_messagesQueues.keySet().contains(m) || _messagesQueues.get(m) == null)
+            {
                 return;
-            // if broadcast does not exist, add it
-            if (!_broadcastSubscriptions.containsKey(type)) {
-                _roundRobinNum.put(type, 0);
-                _broadcastSubscriptions.put(type, new Vector<>());
             }
+            if (!_broadcastSubscriptions.keySet().contains(type)){
+                _broadcastSubscriptions.put(type, new ArrayList<>());
+            }
+            _broadcastSubscriptions.get(type).add(m);
         }
-        // subscribe m to the broadcast
-        _broadcastSubscriptions.get(type).add(m);
 
     }
 
@@ -97,47 +96,59 @@ public class MessageBusImpl implements MessageBus {
     @Override
     public void sendBroadcast(Broadcast b)
     {
-        // at first we need to find all micro services subscribed to b
-        Vector<MicroService> microServices = _broadcastSubscriptions.get(b.getClass());
-        synchronized (microServices) {
-            // for each micro service subscribed to b we insert the message b into its list
-            for (MicroService m : microServices) {
-                LinkedBlockingQueue<Message> currMsgVec = _messagesQueues.get(m);
-                if (currMsgVec == null)     // null means the micro service is not registered
-                    continue;
-                try {
-                    currMsgVec.put(b);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+        // firstly, retrieves micro services subscribed to broadcast b
+        ArrayList<MicroService> subscribers = _broadcastSubscriptions.get(b.getClass());
+        if (subscribers == null)        // if b appears to be not found, return
+            return;
+        synchronized (subscribers) {
+            for (MicroService microService : subscribers)   // b's vector is found and it might hold micro services which want to get b
+            {
+                LinkedBlockingQueue queue = _messagesQueues.get(microService);
+                if (queue != null) {
+                    try {
+                        queue.put(b);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
-            microServices.notifyAll();
         }
     }
 
 
     @Override
-    public <T> Future<T> sendEvent(Event<T> e)
-    {
-        MicroService m = roundRobinAlgo(e);
-        if (m == null)  // in case there is no micro service matching this event
-            return null;
-
-        // event addition
-        LinkedBlockingQueue<Message> mQueue = _messagesQueues.get(m);
-        if (mQueue == null)
-            return null;
-        synchronized (mQueue) {
-            Future<T> future = new Future<>();
-            _messagesAndFutures.put(e, future);
-            try {
-                mQueue.put(e);
-            } catch (InterruptedException e1) {
-                e1.printStackTrace();
+    public <T> Future<T> sendEvent(Event<T> e) {
+        Future future = null;
+        AtomicInteger atomicInteger = _roundRobinNum.get(e.getClass());
+        if (atomicInteger != null){
+            int currIndex = atomicInteger.get();
+            while (!atomicInteger.compareAndSet(currIndex,currIndex+1)){
+                currIndex = atomicInteger.get();
             }
-            mQueue.notifyAll();
-            return future;
+            MicroService microService = null;
+            LinkedBlockingQueue microServiceQueue = null;
+            synchronized (_eventSubscriptions.get(e.getClass())) {      //sync the specific vector so unregister method is not allowed to remove it
+                int vectorSize = _eventSubscriptions.get(e.getClass()).size();
+                if (vectorSize > 0) {
+                    microService = _eventSubscriptions.get(e.getClass()).get(currIndex % vectorSize);
+                    microServiceQueue = _messagesQueues.get(microService);
+                }
+            }
+            if (microServiceQueue != null) {
+                synchronized (microServiceQueue) {
+                    if (_messagesQueues.keySet().contains(microService)) {
+                        future = new Future<>();
+                        _messagesAndFutures.put(e, future);
+                        try {
+                            microServiceQueue.put(e);
+                        } catch (InterruptedException e1) {
+                            Thread.currentThread().interrupt();
+                        }
+                    }
+                }
+            }
         }
+        return future;
     }
 
 
@@ -148,23 +159,8 @@ public class MessageBusImpl implements MessageBus {
      * @return
      */
     private <T> MicroService roundRobinAlgo(Event<T> e) {
-        Vector<MicroService> subscribedToE = _eventSubscriptions.get(e.getClass());
+        MicroService m = null;
 
-        // if no one is registered to this event or micro service has been unregistered
-        if (subscribedToE == null || subscribedToE.isEmpty())
-            return null;
-
-        // the last index of the micro service that was sent
-        int currMicroService = _roundRobinNum.get(e.getClass());
-        int numOfMicroServices = subscribedToE.size();
-
-        // we check size again because a micro service could be unregistered
-        currMicroService = currMicroService % numOfMicroServices;
-        MicroService m = subscribedToE.get(currMicroService);
-
-        // modulo again, if number is bigger than size
-        currMicroService = (currMicroService + 1) % numOfMicroServices;
-        _roundRobinNum.put(e.getClass(),currMicroService);
         return m;
     }
 
@@ -177,45 +173,42 @@ public class MessageBusImpl implements MessageBus {
     @Override
     public void unregister(MicroService m)
     {
-        if (!_messagesQueues.containsKey(m))
-            return;
-        // remove m from _eventSubscriptions && _broadcastSubscriptions
-        for (Vector<MicroService> currVector : _eventSubscriptions.values())
-        {
-            synchronized (currVector) {
-                currVector.remove(m);
-                currVector.notifyAll();
+        for (ArrayList<MicroService> vector : _eventSubscriptions.values()){
+            if (vector.contains(m)){
+                synchronized (vector){
+                    vector.remove(m);
+                }
             }
         }
-        for (Vector<MicroService> currVector : _broadcastSubscriptions.values())
-        {
-            synchronized (currVector) {
-                currVector.remove(m);
-                currVector.notifyAll();
+        for (ArrayList<MicroService> vector : _broadcastSubscriptions.values()){
+            if (vector.contains(m)){
+                synchronized (vector){
+                    vector.remove(m);
+                }
             }
         }
-        safeRemove(m);
+        synchronized (_messagesQueues.get(m)) {
+            for (Message msg : _messagesQueues.get(m))
+            {
+                Future tmpFuture = _messagesAndFutures.get(msg);
+                if (tmpFuture != null) {
+                    tmpFuture.resolve(null);
+                    System.out.println("REACHED HERE");
+                }
+            }
+            _messagesQueues.remove(m);
+        }
     }
 
     private void safeRemove(MicroService m) {
-        for (Message message : _messagesQueues.get(m)){
-            if (_messagesAndFutures.values().contains(message)) {
-                _messagesAndFutures.get(message).resolve(null);
-                System.out.println("reached here");
-            }
-        }
-        _messagesQueues.remove(m);
+
     }
 
     @Override
     public Message awaitMessage(MicroService m) throws InterruptedException {
         Message msg = null;
         LinkedBlockingQueue<Message> mQueue = null;
-        try {
-            mQueue = _messagesQueues.get(m);
-        } catch (IllegalStateException e) {
-            return null;
-        }
+        mQueue = _messagesQueues.get(m);
         if (mQueue == null)
             return null;
         try {
@@ -227,3 +220,4 @@ public class MessageBusImpl implements MessageBus {
         return msg;
     }
 }
+

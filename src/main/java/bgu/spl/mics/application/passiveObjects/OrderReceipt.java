@@ -1,6 +1,11 @@
 package bgu.spl.mics.application.passiveObjects;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Passive data-object representing a receipt that should 
@@ -11,14 +16,14 @@ import java.io.Serializable;
  */
 public class OrderReceipt  implements Serializable {
 
-	private final int _orderId;
-	private final String _seller;
-	private final int _customerId;
-	private final String _bookTitle;
-	private final int _price;
-	private final int _issuedTick;
-	private final int _orderTick;
-	private final int _processTick;
+	private int _orderId;
+	private String _seller;
+	private int _customerId;
+	private String _bookTitle;
+	private int _price;
+	private int _issuedTick;
+	private int _orderTick;
+	private int _processTick;
 
 
 	public OrderReceipt(int _orderId, String _seller, int _customerId, String _bookTitle, int _price, int _issuedTick, int _orderTick, int _processTick) {
@@ -91,4 +96,40 @@ public class OrderReceipt  implements Serializable {
 	public int getProcessTick() {
 		return _processTick;
 	}
+
+	private void readObject(ObjectInputStream aInputStream) throws ClassNotFoundException, IOException
+	{
+		_orderId = aInputStream.readInt();
+		_seller = aInputStream.readUTF();
+		_customerId = aInputStream.readInt();
+		_bookTitle = aInputStream.readUTF();
+		_price = aInputStream.readInt();
+		_issuedTick =aInputStream.readInt();
+		_orderTick = aInputStream.readInt();
+		_processTick = aInputStream.readInt();
+	}
+
+	private void writeObject(ObjectOutputStream aOutputStream) throws IOException
+	{
+		aOutputStream.writeInt(_orderId);
+		aOutputStream.writeUTF(_seller);
+		aOutputStream.writeInt(_customerId);
+		aOutputStream.writeUTF(_bookTitle);
+		aOutputStream.writeInt(_price);
+		aOutputStream.writeInt(_issuedTick);
+		aOutputStream.writeInt(_orderTick);
+		aOutputStream.writeInt(_processTick);
+	}
+
+	@Override
+	public String toString() {
+		String str = "";
+		str += "customer   : " + getCustomerId() + "\n";
+		str += "order tick : " + getOrderTick() + "\n";
+		str += "id         : " + getOrderId() + "\n";
+		str += "price      : " + getPrice() + "\n";
+		str += "seller     : " + getSeller();
+		return str;
+	}
+
 }
