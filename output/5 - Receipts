@@ -1,0 +1,17 @@
+customer   : 234567891
+order tick : 3
+id         : 0
+price      : 10
+seller     : SellingService 2
+---------------------------
+customer   : 123456789
+order tick : 3
+id         : 0
+price      : 100
+seller     : SellingService 4
+---------------------------
+customer   : 234567891
+order tick : 5
+id         : 0
+price      : 100
+seller     : SellingService 0

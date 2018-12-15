@@ -31,7 +31,6 @@ public class BookStoreRunner {
         parseJSONAndLoad(paths[0]);
         startThreadsAndJoin();
         printToFiles(paths);
-//        tmpFunc(paths);
 
     }
 
@@ -46,8 +45,6 @@ public class BookStoreRunner {
         MoneyRegister.getInstance().printOrderReceipts(args[3]);
         MoneyRegister.getInstance().printObject(args[4]);
     }
-
-
 
     /**
      * Assisting method responsible for initiating the threads.
@@ -262,7 +259,6 @@ public class BookStoreRunner {
             deliveryVehicles[i] = currVehicle;
 
         }
-
         return deliveryVehicles;
     }
 
@@ -290,15 +286,7 @@ public class BookStoreRunner {
         new BookStoreRunner(args);
     }
 
-    public static void Print(String str, String filename) {
-        try {
-            try (PrintStream out = new PrintStream(new FileOutputStream(filename))) {
-                out.print(str);
-            }
-        } catch (IOException e) {
-            System.out.println("Exception: " + e.getClass().getSimpleName());
-        }
-    }
+
 
 
 

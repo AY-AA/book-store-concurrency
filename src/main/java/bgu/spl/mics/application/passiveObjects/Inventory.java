@@ -102,8 +102,5 @@ public class Inventory {
 		FilePrinter.printToFile(inventoryToFile,filename);
 	}
 
-
-
-
 }
 

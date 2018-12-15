@@ -1,0 +1,13 @@
+id    : 123456789
+name  : Bruria
+addr  : NewYork 123
+dist  : 33
+card  : 67890
+money : 88798
+---------------------------
+id    : 234567891
+name  : Shraga
+addr  : BeerSheva 3333
+dist  : 12
+card  : 453536
+money : 2106
