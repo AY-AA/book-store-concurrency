@@ -105,10 +105,4 @@ public class MoneyRegister implements Serializable {
 		aOutputStream.writeObject(_ordersList);
 	}
 
-
-	//TODO: REMOVE!!!
-	public void refresh()
-	{
-		_ordersList = new ArrayList<>();
-	}
 }
