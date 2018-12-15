@@ -184,5 +184,6 @@ public abstract class MicroService implements Runnable {
             }
         }
         msgBus.unregister(this);
+        System.out.println(Thread.currentThread().getName() + " unregistered");
     }
 }
