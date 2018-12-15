@@ -1,5 +1,8 @@
 package bgu.spl.mics.application.passiveObjects;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,13 +16,13 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class Customer implements Serializable {
 
-	private final String _name;
-	private final int _id;
-	private final int _distance;
-	private final String _address;
-	private final List<OrderReceipt> _receipts;
+	private String _name;
+	private int _id;
+	private int _distance;
+	private String _address;
+	private List<OrderReceipt> _receipts;
 	private AtomicInteger _availableCreditAmount;
-	private final int _creditCard;
+	private int _creditCard;
 
 	public Customer(String _name, int _id, int _distance, String _address, int _availableCreditAmount, int _creditCard)
 	{
@@ -95,5 +98,38 @@ public class Customer implements Serializable {
 
 	public void takeReceipt(OrderReceipt receipt) {
 		_receipts.add(receipt);
+	}
+
+	private void readObject(ObjectInputStream aInputStream) throws ClassNotFoundException, IOException
+	{
+		 _name = aInputStream.readUTF();
+		_id = aInputStream.readInt();
+		_distance = aInputStream.readInt();
+		_address = aInputStream.readUTF();
+		_receipts = (List) aInputStream.readObject();
+		_availableCreditAmount = new AtomicInteger(aInputStream.readInt());
+		_creditCard = aInputStream.readInt();
+	}
+
+	private void writeObject(ObjectOutputStream aOutputStream) throws IOException
+	{
+		aOutputStream.writeUTF(_name);
+		aOutputStream.writeInt(_id);
+		aOutputStream.writeInt(_distance);
+		aOutputStream.writeUTF(_address);
+		aOutputStream.writeObject(_receipts);
+		aOutputStream.writeInt(_availableCreditAmount.get());
+		aOutputStream.writeInt(_creditCard);
+	}
+
+	@Override
+	public String toString() {
+		String str = "id    : " + _id + "\n";
+		str += "name  : " + getName() + "\n";
+		str += "addr  : " + getAddress() + "\n";
+		str += "dist  : " + getDistance() + "\n";
+		str += "card  : " + getCreditNumber() + "\n";
+		str += "money : " + getAvailableCreditAmount();
+		return str;
 	}
 }

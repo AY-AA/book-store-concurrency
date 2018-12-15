@@ -35,10 +35,10 @@ public class ResourcesHolder {
 	private LinkedList<DeliveryVehicle> _deliveryVehicles;
 
 	// A queue of futures waiting to get resolved with a vehicle
-	private LinkedList<Future<DeliveryVehicle>> _futures;
+	private LinkedBlockingQueue<Future<DeliveryVehicle>> _futures;
 
 	private ResourcesHolder(){
-		_futures = new LinkedList<>();
+		_futures = new LinkedBlockingQueue<>();
 		_deliveryVehicles = new LinkedList<>();
 	}
 

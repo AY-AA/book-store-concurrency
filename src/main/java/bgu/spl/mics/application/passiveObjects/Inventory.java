@@ -3,6 +3,7 @@ package bgu.spl.mics.application.passiveObjects;
 
 import bgu.spl.mics.accessories.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -41,6 +42,8 @@ public class Inventory {
 	 * 						of the inventory.
 	 */
 	public void load (BookInventoryInfo[ ] inventory ) {
+		// TODO : DELETE!
+		_bookInventoryInfo = new HashMap<>();
 		for (BookInventoryInfo book : inventory) {
 			_bookInventoryInfo.put(book.getBookTitle(),book);
 		}
@@ -99,6 +102,17 @@ public class Inventory {
 			inventoryToFile.put(name,amount);
 		}
 		FilePrinter.printToFile(inventoryToFile,filename);
+	}
+
+
+	// TODO : DELETE!
+	public ArrayList<BookInventoryInfo> get_bookInventoryInfo() {
+		ArrayList<BookInventoryInfo> ans = new ArrayList<>();
+		for (BookInventoryInfo book : _bookInventoryInfo.values()) {
+			ans.add(book);
+		}
+		return ans;
+
 	}
 
 }

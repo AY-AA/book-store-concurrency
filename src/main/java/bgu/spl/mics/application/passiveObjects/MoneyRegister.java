@@ -3,6 +3,9 @@ package bgu.spl.mics.application.passiveObjects;
 
 import bgu.spl.mics.accessories.FilePrinter;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +14,10 @@ import java.util.List;
  * Passive object representing the store finance management. 
  * It should hold a list of receipts issued by the store.
  * <p>
- * This class must be implemented safely as a thread-safe singleton.
+ * This class must be implemented safely as a thread-safe 	public void printOrderReceipts(String filename) {
+		FilePrinter.printToFile(_ordersList,filename);
+	}
+singleton.
  * You must not alter any of the given public methods of this class.
  * <p>
  * You can add ONLY private fields and methods to this class as you see fit.
@@ -92,4 +98,13 @@ public class MoneyRegister implements Serializable {
 	}
 
 
+	private void readObject(ObjectInputStream aInputStream) throws ClassNotFoundException, IOException
+	{
+		_ordersList = (List) aInputStream.readObject();
+	}
+
+	private void writeObject(ObjectOutputStream aOutputStream) throws IOException
+	{
+		aOutputStream.writeObject(_ordersList);
+	}
 }

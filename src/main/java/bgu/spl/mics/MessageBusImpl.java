@@ -117,27 +117,34 @@ public class MessageBusImpl implements MessageBus {
 
 
     @Override
-    public <T> Future<T> sendEvent(Event<T> e)
-    {
-        MicroService m = roundRobinAlgo(e);
-        if (m == null)  // in case there is no micro service matching this event
-            return null;
-
-        // event addition
-        LinkedBlockingQueue<Message> mQueue = _messagesQueues.get(m);
-        if (mQueue == null)
-            return null;
-        synchronized (mQueue) {
-            Future<T> future = new Future<>();
-            _messagesAndFutures.put(e, future);
-            try {
-                mQueue.put(e);
-            } catch (InterruptedException e1) {
-                e1.printStackTrace();
+    public <T> Future<T> sendEvent(Event<T> e) {
+        MicroService m = null;
+        do {
+            m = roundRobinAlgo(e);
+            if (m == null)
+                return null;
+            LinkedBlockingQueue<Message> mQueue = _messagesQueues.get(m);
+            if (mQueue == null)
+                continue;
+            synchronized (mQueue) {
+                if (_messagesQueues.contains(m)) {   //in this time, m has not unregistered
+                    Future<T> future = new Future<>();
+                    _messagesAndFutures.put(e, future);
+                    try {
+                        mQueue.put(e);
+                    } catch (InterruptedException e1) {
+                        e1.printStackTrace();
+                    }
+                    mQueue.notifyAll();
+                    return future;
+                }
             }
-            mQueue.notifyAll();
-            return future;
-        }
+
+        } while (m != null);
+//        if (m == null)  // in case there is no micro service matching this event
+        return null;
+
+
     }
 
 
@@ -151,21 +158,27 @@ public class MessageBusImpl implements MessageBus {
         Vector<MicroService> subscribedToE = _eventSubscriptions.get(e.getClass());
 
         // if no one is registered to this event or micro service has been unregistered
-        if (subscribedToE == null || subscribedToE.isEmpty())
+        if (subscribedToE == null)
             return null;
 
-        // the last index of the micro service that was sent
-        int currMicroService = _roundRobinNum.get(e.getClass());
-        int numOfMicroServices = subscribedToE.size();
+        synchronized (subscribedToE)
+        {
+            if (subscribedToE.isEmpty())
+                return null;
+            // the last index of the micro service that was sent
+            int currMicroService = _roundRobinNum.get(e.getClass());
+            int numOfMicroServices = subscribedToE.size();
 
-        // we check size again because a micro service could be unregistered
-        currMicroService = currMicroService % numOfMicroServices;
-        MicroService m = subscribedToE.get(currMicroService);
+            // we check size again because a micro service could be unregistered
+            currMicroService = currMicroService % numOfMicroServices;
+            MicroService m = subscribedToE.get(currMicroService);
 
-        // modulo again, if number is bigger than size
-        currMicroService = (currMicroService + 1) % numOfMicroServices;
-        _roundRobinNum.put(e.getClass(),currMicroService);
-        return m;
+            // modulo again, if number is bigger than size
+            currMicroService = (currMicroService + 1) % numOfMicroServices;
+            _roundRobinNum.put(e.getClass(),currMicroService);
+
+            return m;
+        }
     }
 
     @Override
@@ -198,13 +211,15 @@ public class MessageBusImpl implements MessageBus {
     }
 
     private void safeRemove(MicroService m) {
-        for (Message message : _messagesQueues.get(m)){
-            if (_messagesAndFutures.values().contains(message)) {
-                _messagesAndFutures.get(message).resolve(null);
-                System.out.println("reached here");
+        synchronized (_messagesQueues.get(m)) {
+            for (Message message :_messagesQueues.get(m)) {
+                if (_messagesAndFutures.values().contains(message)) {
+                    _messagesAndFutures.get(message).resolve(null);
+                    System.out.println("reached here");
+                }
             }
+            _messagesQueues.remove(m);
         }
-        _messagesQueues.remove(m);
     }
 
     @Override

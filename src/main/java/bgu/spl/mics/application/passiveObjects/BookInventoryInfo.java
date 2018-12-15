@@ -54,4 +54,12 @@ public class BookInventoryInfo {
 		return _amountInInventory.compareAndSet(amount,amount-1);
 	}
 
+	@Override
+	public String toString() {
+		String str = "";
+		str += "title   : " + getBookTitle() + "\n";
+		str += "amount  : " + getAmountInInventory() + "\n";
+		str += "price   : " + getPrice();
+		return str;
+	}
 }

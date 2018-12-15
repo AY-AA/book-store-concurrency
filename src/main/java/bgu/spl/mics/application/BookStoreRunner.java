@@ -7,10 +7,8 @@ import bgu.spl.mics.application.passiveObjects.*;
 import bgu.spl.mics.application.services.*;
 import com.google.gson.*;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.util.HashMap;
-import java.util.Vector;
+import java.io.*;
+import java.util.*;
 
 /**
  * This is the Main class of the application. You should parse the input file,
@@ -31,39 +29,66 @@ public class BookStoreRunner {
         _microServices = new Vector<>();
         _customers = new HashMap<>();
         parseJSONAndLoad(paths[0]);
-        startThreads();
-        printToFiles(paths);
+        startThreadsAndJoin();
+//        printToFiles(paths);
+        tmpFunc(paths);
+
     }
 
     /**
      * Method responsible for printing object to file using serialization.
      *
-     * @param paths String array containing details the paths for the object which need to be written to file.
+     * @param args String array containing details the paths for the object which need to be written to file.
      */
-    private void printToFiles(String[] paths) {
-        FilePrinter.printToFile(_customers, paths[1]);
-        Inventory.getInstance().printInventoryToFile(paths[2]);
-        MoneyRegister.getInstance().printOrderReceipts(paths[3]);
-        MoneyRegister.getInstance().printObject(paths[4]);
+    private void printToFiles(String[] args) {
+        FilePrinter.printToFile(_customers, args[1]);
+        Inventory.getInstance().printInventoryToFile(args[2]);
+        MoneyRegister.getInstance().printOrderReceipts(args[3]);
+        MoneyRegister.getInstance().printObject(args[4]);
+    }
 
+    private void tmpFunc(String[] args) {
+
+        ArrayList<BookInventoryInfo> books = Inventory.getInstance().get_bookInventoryInfo();
+        int numOfTest = Integer.parseInt(args[0].replace(new File(args[0]).getParent(), "").replace("/", "").replace(".json", ""));
+        String dir = new File(args[1]).getParent() + "/" + numOfTest + " - ";
+        Customer[] customers1 = _customers.values().toArray(new Customer[0]);
+        Arrays.sort(customers1, Comparator.comparing(Customer::getName));
+        String str_custs = Arrays.toString(customers1);
+        str_custs = str_custs.replaceAll(", ", "\n---------------------------\n").replace("[", "").replace("]", "");
+        Print(str_custs, dir + "Customers");
+
+        String str_books = Arrays.toString(books.toArray());
+        str_books = str_books.replaceAll(", ", "\n---------------------------\n").replace("[", "").replace("]", "");
+        Print(str_books, dir + "Books");
+
+        List<OrderReceipt> receipts_lst = MoneyRegister.getInstance().getOrderReceipts();
+        receipts_lst.sort(Comparator.comparing(OrderReceipt::getOrderTick));
+        OrderReceipt[] receipts = receipts_lst.toArray(new OrderReceipt[0]);
+        String str_receipts = Arrays.toString(receipts);
+        str_receipts = str_receipts.replaceAll(", ", "\n---------------------------\n").replace("[", "").replace("]", "");
+        Print(str_receipts, dir + "Receipts");
+
+        Print(MoneyRegister.getInstance().getTotalEarnings() + "", dir + "Total");
     }
 
     /**
      * Assisting method responsible for initiating the threads.
      * cycling through the microServices data structure and starting each one of them.
      */
-    private void startThreads() {
-        MicroService timeService = _microServices.lastElement();
+    private void startThreadsAndJoin() {
+        ArrayList<Thread> threads = new ArrayList<>();
         for (MicroService microService : _microServices) {
             Thread thread = new Thread(microService);
             thread.setName(microService.getName());
+            threads.add(thread);
             thread.start();
-            if (microService == timeService) {
-                try {
-                    thread.join();
-                } catch (InterruptedException e) {
-                    return;
-                }
+        }
+        for (Thread thread : threads) {
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+                return;
             }
         }
     }
@@ -287,16 +312,50 @@ public class BookStoreRunner {
     public static void main(String[] args) {
 
         String inputFile = System.getProperty("user.dir");
-        String[] a = {inputFile + "/input.json",
-                inputFile + "/customers.obj",
-                inputFile + "/books.obj",
-                inputFile + "/orders.obj",
-                inputFile + "/moneyRegister.obj"};
+//        String[] a = {inputFile + "/2.json",
+//                inputFile + "/customers",
+//                inputFile + "/books",
+//                inputFile + "/orders",
+//                inputFile + "/moneyRegister"};
 
+        int i = 6;
+        String[] a = {inputFile + "/input/6.json",
+                inputFile + "/output/customers",
+                inputFile + "/output/books",
+                inputFile + "/output/orders",
+                inputFile + "/output/moneyRegister"};
+        System.out.println("TEST :" + i + " started");
         new BookStoreRunner(a);
+
+//        for (int i=6 ; i < 13 ; i++){
+//            String[] a = {inputFile + "/input/" + i + ".json",
+//                    inputFile + "/output/customers",
+//                    inputFile + "/output/books",
+//                    inputFile + "/output/orders",
+//                    inputFile + "/output/moneyRegister"};
+//            System.out.println("TEST :" + i + " started");
+//            new BookStoreRunner(a);
+//            MoneyRegister.getInstance().refresh();
+//            System.out.println("TEST :" + i + " finished");
+//
+//        }
 
 //        new BookStoreRunner(args);
 
 
     }
+
+    public static void Print(String str, String filename) {
+        try {
+            try (PrintStream out = new PrintStream(new FileOutputStream(filename))) {
+                out.print(str);
+            }
+        } catch (IOException e) {
+            System.out.println("Exception: " + e.getClass().getSimpleName());
+        }
+    }
+
+
+
+
 }
