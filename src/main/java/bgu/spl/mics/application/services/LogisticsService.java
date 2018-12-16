@@ -42,6 +42,7 @@ public class LogisticsService extends MicroService {
                 if(deliveryVehicle != null){	// a vehicle was found and now it delivers the book
                     deliveryVehicle.deliver(delEv.get_address(),delEv.get_distance());
                     sendEvent(new ReleaseVehicle(deliveryVehicle));
+                    System.out.println("DELIVERED!");
                 }
             }
         });
