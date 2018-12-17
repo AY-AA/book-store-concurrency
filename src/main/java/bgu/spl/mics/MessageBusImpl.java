@@ -206,17 +206,12 @@ public class MessageBusImpl implements MessageBus {
 
     @Override
     public Message awaitMessage(MicroService m) throws InterruptedException {
-        Message msg = null;
+        Message msg;
         LinkedBlockingQueue<Message> mQueue = null;
         mQueue = _messagesQueues.get(m);
         if (mQueue == null)
             return null;
-        try {
-            msg = _messagesQueues.get(m).take();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            return null;
-        }
+        msg = _messagesQueues.get(m).take();
         return msg;
     }
 }
